@@ -1,0 +1,9 @@
+{
+  "name": "portal-vv",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Aplicação privada do Espaço Viviane Vargas, conectada ao Firebase compartilhado.",
+  "dependencies": {
+    "firebase-admin": "^12.3.1"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Espaço Viviane Vargas",
+  "short_name": "Viviane Vargas",
+  "description": "Espaço Viviane Vargas — Estética e Salão de Beleza",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf5f0",
+  "theme_color": "#6b0e12",
+  "icons": [
+    { "src": "/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

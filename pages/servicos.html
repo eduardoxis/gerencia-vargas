@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Serviços — Espaço Viviane Vargas</title>
+<meta name="description" content="Conheça os serviços do Espaço Viviane Vargas: estética facial e corporal, cabelo, unhas, maquiagem, sobrancelhas, cílios e depilação.">
+<link rel="icon" href="/assets/icons/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css?v=5">
+<link rel="stylesheet" href="/css/modal.css?v=3">
+<link rel="stylesheet" href="/css/responsive.css?v=5">
+<style>
+  /* Estilos exclusivos do catálogo navegável de serviços. */
+  .catalogo { position: relative; padding-block: 2.2rem 4rem; min-height: 60vh; }
+  .catalogo::before {
+    content: ""; position: absolute; top: 0; right: -4vw; width: min(420px, 45vw); height: 260px; pointer-events: none; opacity: 0.55;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 420 260' fill='none'><path d='M420 20C330 40 250 90 200 170S110 250 40 258' stroke='%23dccbbd' stroke-width='1.2'/><path d='M420 70C350 80 290 120 250 180' stroke='%23e6d8cc' stroke-width='1'/><path d='M300 120c20-6 38-4 54 6-16 10-36 12-54-6Z' stroke='%23dccbbd' stroke-width='1'/></svg>") no-repeat right top / contain;
+  }
+  .catalogo > * { position: relative; }
+
+  .cat-voltar {
+    display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1.1rem;
+    background: none; border: 0; padding: 0.2rem 0; cursor: pointer;
+    color: var(--azul-700); font: 600 0.9rem var(--fonte-corpo);
+  }
+  .cat-voltar svg { width: 16px; height: 16px; transition: transform var(--transicao); }
+  .cat-voltar:hover svg { transform: translateX(-3px); }
+
+  .cat-eyebrow {
+    display: flex; align-items: center; gap: 0.9rem; margin: 0 0 0.55rem;
+    font-size: 0.74rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cinza-600);
+  }
+  .cat-eyebrow::after { content: ""; width: 74px; height: 1px; background: var(--azul-700); }
+  .cat-titulo {
+    margin: 0; font-family: var(--fonte-display); font-weight: 500; line-height: 1.1;
+    font-size: clamp(2rem, 3.4vw, 2.9rem); color: var(--azul-700);
+  }
+  .cat-sub { margin: 0.7rem 0 0; font-size: 1.05rem; color: var(--cinza-600); max-width: 80ch; }
+  .cat-secao-titulo {
+    margin: 2.6rem 0 1.2rem; font-family: var(--fonte-display); font-weight: 500;
+    font-size: 1.5rem; color: var(--azul-700);
+  }
+
+  /* ----- cards de categoria / subcategoria ----- */
+  .cat-grid {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(1rem, 1.8vw, 1.4rem); margin-top: 2rem;
+  }
+  .cat-card {
+    display: flex; flex-direction: column; overflow: hidden; color: inherit;
+    background: var(--branco); border: 1px solid var(--cinza-100); border-radius: 14px;
+    box-shadow: var(--sombra-sm); transition: transform var(--transicao), box-shadow var(--transicao), border-color var(--transicao);
+  }
+  .cat-card:hover { transform: translateY(-4px); box-shadow: var(--sombra-md); border-color: var(--cinza-200); }
+  .cat-card__img { aspect-ratio: 3.4 / 1; background: linear-gradient(135deg, var(--azul-100), var(--cinza-100)); overflow: hidden; display: grid; place-items: center; }
+  .cat-card__img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 500ms ease; }
+  .cat-card:hover .cat-card__img img { transform: scale(1.04); }
+  .cat-card__img--vazia svg { width: 38px; height: 38px; color: var(--cinza-400); opacity: 0.8; }
+  .cat-card__body { display: flex; flex-direction: column; flex: 1; padding: 1.15rem 1.35rem 1.3rem; }
+  .cat-card__nome { margin: 0 0 0.35rem; font-family: var(--fonte-display); font-weight: 500; font-size: 1.55rem; line-height: 1.15; color: var(--azul-700); }
+  .cat-card__desc { margin: 0 0 1rem; font-size: 0.95rem; line-height: 1.45; color: var(--cinza-600); max-width: 26ch; flex: 1; }
+  .cat-card__link {
+    align-self: flex-start; display: inline-flex; align-items: center; gap: 0.7rem;
+    padding-bottom: 0.15rem; border-bottom: 1px solid var(--azul-700);
+    font-size: 0.9rem; font-weight: 500; color: var(--azul-700);
+  }
+  .cat-card__link svg { width: 17px; height: 17px; transition: transform var(--transicao); }
+  .cat-card:hover .cat-card__link svg { transform: translateX(4px); }
+
+  /* ----- cards de serviço ----- */
+  .svc-grid {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(1rem, 1.8vw, 1.4rem); margin-top: 2rem;
+  }
+  .svc-card {
+    display: flex; flex-direction: column; overflow: hidden;
+    background: var(--branco); border: 1px solid var(--cinza-100); border-radius: 14px; box-shadow: var(--sombra-sm);
+  }
+  .svc-card__img { display: block; aspect-ratio: 4 / 3; background: var(--cinza-100); overflow: hidden; }
+  .svc-card__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .svc-card__body { display: flex; flex-direction: column; gap: 0.55rem; flex: 1; padding: 1.1rem 1.25rem 1.25rem; }
+  .svc-card__nome { margin: 0; font-family: var(--fonte-display); font-weight: 500; font-size: 1.35rem; line-height: 1.2; color: var(--azul-700); }
+  .svc-card__desc { margin: 0; font-size: 0.92rem; line-height: 1.5; color: var(--cinza-600); flex: 1; }
+  .svc-card__meta { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding-top: 0.6rem; border-top: 1px solid var(--cinza-100); }
+  .svc-card__duracao { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--cinza-600); }
+  .svc-card__duracao svg { width: 16px; height: 16px; }
+  .svc-card__preco { font-weight: 600; color: var(--azul-700); font-size: 0.95rem; text-align: right; }
+  .svc-card__acoes { display: grid; gap: 0.6rem; margin-top: 0.4rem; }
+  .svc-card__agendar { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.7rem 1rem; border-radius: 999px; font-weight: 600; font-size: 0.9rem; }
+  .svc-card__agendar .icon { width: 17px; height: 17px; }
+  .svc-card__detalhes { text-align: center; font-size: 0.85rem; color: var(--azul-700); text-decoration: underline; text-underline-offset: 3px; }
+
+  .cat-vazio { grid-column: 1 / -1; padding: 3rem 1rem; text-align: center; color: var(--cinza-500); }
+
+  @media (max-width: 1100px) {
+    .cat-grid, .svc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 780px) {
+    .cat-grid, .svc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cat-card__body { padding: 1rem 1rem 1.1rem; }
+    .cat-card__nome { font-size: 1.3rem; }
+    .cat-card__desc { max-width: none; }
+  }
+  @media (max-width: 460px) {
+    .cat-grid { grid-template-columns: 1fr; }
+    .svc-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<a href="#conteudo" class="skip-link">Pular para o conteúdo</a>
+
+<header class="site-header">
+  <div class="container header-top">
+    <a href="/" class="logo">
+      <img src="/assets/images/logo.webp" alt="Espaço Viviane Vargas" class="logo__mark" width="256" height="256" decoding="async">
+      <span class="logo__text"><span class="logo__t1">Espaço</span><span class="logo__t2">Viviane Vargas</span><span class="logo__t3">Estética e salão de beleza</span></span>
+    </a>
+
+    <form class="search-bar" role="search" id="form-busca-servicos">
+      <label for="busca-header" class="sr-only">Pesquisar serviços</label>
+      <input id="busca-header" type="search" placeholder="Buscar serviço..." autocomplete="off">
+      <button type="submit" class="search-bar__btn" aria-label="Pesquisar"><span data-icon="search"></span></button>
+    </form>
+
+    <div class="header-actions">
+      <a href="/pages/catalogo.html" class="header-action header-action--nav" aria-label="Catálogo"><span data-icon="shoppingBag"></span><span>Catálogo</span></a>
+      <a href="/pages/servicos.html" class="header-action header-action--nav is-active" aria-label="Serviços" aria-current="page"><span data-icon="calendar"></span><span>Serviços</span></a>
+      <button id="btn-entrar" class="header-action" data-modal-target="#modal-login" aria-label="Entrar">
+        <span data-icon="user"></span><span>Entrar</span>
+      </button>
+      <button id="btn-sair" class="header-action" hidden aria-label="Sair">
+        <span data-icon="logOut"></span><span>Sair</span>
+      </button>
+      <button id="btn-minha-conta" class="header-action" hidden data-modal-target="#modal-conta" aria-label="Minha conta">
+        <span data-icon="user"></span><span>Minha conta</span>
+      </button>
+      <button id="abrir-admin" class="header-action" hidden aria-label="Painel Admin">
+        <span data-icon="home"></span><span>Painel Admin</span>
+      </button>
+      <button class="menu-toggle" aria-label="Abrir menu"><span data-icon="menu"></span></button>
+    </div>
+  </div>
+</header>
+
+<main class="container catalogo" id="conteudo">
+  <div id="catalogo-topo"></div>
+  <div id="catalogo-conteudo" aria-live="polite"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <h4>Espaço Viviane Vargas</h4>
+      <p>R. Benjamin Roriz - St. Aeroporto, Luziânia - GO, 72800-380</p>
+    </div>
+    <div>
+      <h4>Contato</h4>
+      <a href="https://wa.me/5561995072128" target="_blank" rel="noopener">WhatsApp</a>
+      <p>vivianefvargas@hotmail.com</p>
+    </div>
+    <div>
+      <h4>Redes sociais</h4>
+      <div class="social-row">
+        <a href="https://www.instagram.com/vivianefvargas/" aria-label="Instagram" target="_blank" rel="noopener"><span data-icon="instagram"></span></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 Espaço Viviane Vargas. Todos os direitos reservados.<span class="footer-credit">Desenvolvido por <a href="https://www.instagram.com/eduardo_xis" target="_blank" rel="noopener noreferrer">@eduardo_xis</a></span></div>
+</footer>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav">
+  <a href="/" class="bottom-nav__item">
+    <span data-icon="home"></span><span>Início</span>
+  </a>
+  <a href="/pages/catalogo.html" class="bottom-nav__item">
+    <span data-icon="shoppingBag"></span><span>Catálogo</span>
+  </a>
+  <a href="/pages/servicos.html" class="bottom-nav__item is-active">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4.5c1.8 2 2.8 4.2 2.8 6.4S13.8 14.9 12 16.5c-1.8-1.6-2.8-3.6-2.8-5.6S10.2 6.5 12 4.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.4 14.6C7 14.8 4.7 13.6 3.5 11.1c2.6-.3 4.7.5 6 2M14.6 14.6c2.4.2 4.7-1 5.9-3.5-2.6-.3-4.7.5-6 2M5 18c2.2 1.5 4.6 2 7 2s4.8-.5 7-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Serviços</span>
+  </a>
+  <a href="/?abrir=conta" class="bottom-nav__item">
+    <span data-icon="user"></span><span>Conta</span>
+  </a>
+</nav>
+
+<script type="module">
+import { listarServicosPublico, montarArvoreCategorias, resolverNomesServicos, invalidarCacheServicos, normalizarTexto, ordenarServicos } from "../js/services/servicos.js";
+import { escHtml, getQueryParam, toast, debounce, registrarErroCliente } from "../js/utils/utils.js";
+import { renderizarServicosCatalogo } from "../js/modules/servicos-publico.js";
+import { ouvirEstadoAuth, ehAdmin, sair } from "../js/services/auth.js";
+import { ICONS } from "../js/utils/icons.js";
+import { iniciarLoadingGlobal } from "../js/utils/loadingUI.js";
+import { observarAtualizacaoPublica } from "../js/services/public-sync.js";
+
+iniciarLoadingGlobal();
+let recargaPublicaAgendada = false;
+observarAtualizacaoPublica(() => {
+  if (recargaPublicaAgendada) return;
+  recargaPublicaAgendada = true;
+  invalidarCacheServicos();
+  window.setTimeout(() => window.location.reload(), 500);
+});
+
+(function monitorarErrosGlobais() {
+  const jaRegistrados = new Set();
+  function registrar(origem, erro) {
+    const chave = `${origem}:${String(erro?.message || erro)}`;
+    if (jaRegistrados.has(chave)) return;
+    jaRegistrados.add(chave);
+    registrarErroCliente(origem, erro);
+  }
+  window.addEventListener("error", (e) => registrar("erro-js-global", e.error || e.message));
+  window.addEventListener("unhandledrejection", (e) => registrar("promise-rejeitada", e.reason));
+})();
+
+function aplicarIconesEstaticos() {
+  document.querySelectorAll("[data-icon]").forEach(el => {
+    const nome = el.dataset.icon;
+    if (ICONS[nome] && !el.querySelector("svg")) {
+      el.innerHTML = ICONS[nome];
+      el.classList.add("icon");
+    }
+  });
+}
+aplicarIconesEstaticos();
+
+const SVG_SETA = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const SVG_VOLTAR = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 12H5m5-5-5 5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const SVG_FOLHA = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4.5c1.8 2 2.8 4.2 2.8 6.4S13.8 14.9 12 16.5c-1.8-1.6-2.8-3.6-2.8-5.6S10.2 6.5 12 4.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M9.4 14.6C7 14.8 4.7 13.6 3.5 11.1c2.6-.3 4.7.5 6 2M14.6 14.6c2.4.2 4.7-1 5.9-3.5-2.6-.3-4.7.5-6 2M5 18c2.2 1.5 4.6 2 7 2s4.8-.5 7-2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+let CATEGORIAS = [];
+let SERVICOS = [];
+
+// Posição no catálogo: categoria (catId) e subcategoria (subId) vêm da URL, então
+// o botão "voltar" do navegador e links compartilhados funcionam.
+const estado = {
+  catId: getQueryParam("categoria") || "",
+  subId: getQueryParam("sub") || "",
+  termo: getQueryParam("q") || ""
+};
+
+const topo = document.querySelector("#catalogo-topo");
+const conteudo = document.querySelector("#catalogo-conteudo");
+const inputBusca = document.querySelector("#busca-header");
+inputBusca.value = estado.termo;
+
+// ---------- dados ----------
+function servicosDe(catId, subId = "") {
+  return SERVICOS.filter(s => s.categoriaId === catId && (!subId || s.subcategoriaId === subId));
+}
+
+function arvoreVisivel() {
+  return montarArvoreCategorias(CATEGORIAS)
+    .map(c => ({
+      ...c,
+      filhas: c.filhas.filter(f => SERVICOS.some(s => s.subcategoriaId === f.id))
+    }))
+    .filter(c => servicosDe(c.id).length > 0);
+}
+
+function textoQuantidade(n) {
+  return `${n} ${n === 1 ? "serviço" : "serviços"}`;
+}
+
+// ---------- navegação ----------
+function urlDoEstado() {
+  const q = new URLSearchParams();
+  if (estado.catId) q.set("categoria", estado.catId);
+  if (estado.subId) q.set("sub", estado.subId);
+  if (estado.termo) q.set("q", estado.termo);
+  const texto = q.toString();
+  return `${window.location.pathname}${texto ? `?${texto}` : ""}`;
+}
+
+function navegar(catId = "", subId = "") {
+  estado.catId = catId;
+  estado.subId = subId;
+  estado.termo = "";
+  inputBusca.value = "";
+  history.pushState(null, "", urlDoEstado());
+  render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+window.addEventListener("popstate", () => {
+  estado.catId = getQueryParam("categoria") || "";
+  estado.subId = getQueryParam("sub") || "";
+  estado.termo = getQueryParam("q") || "";
+  inputBusca.value = estado.termo;
+  render();
+});
+
+// ---------- desenho ----------
+function cabecalho({ voltarPara = null, titulo, subtitulo = "" }) {
+  topo.innerHTML = `
+    ${voltarPara ? `<button type="button" class="cat-voltar" data-voltar>${SVG_VOLTAR}${escHtml(voltarPara.texto)}</button>` : ""}
+    <p class="cat-eyebrow">Nossos serviços</p>
+    <h1 class="cat-titulo">${escHtml(titulo)}</h1>
+    ${subtitulo ? `<p class="cat-sub">${escHtml(subtitulo)}</p>` : ""}`;
+  topo.querySelector("[data-voltar]")?.addEventListener("click", voltarPara?.acao || (() => {}));
+}
+
+function cartaoCategoria(item) {
+  const total = item.total;
+  const desc = item.descricao || textoQuantidade(total);
+  const posY = Number.isFinite(Number(item.imagemPosY)) ? Number(item.imagemPosY) : 50;
+  const alvo = item.href;
+  return `
+    <a class="cat-card" href="${escHtml(alvo)}" data-nav-cat="${escHtml(item.catId)}" data-nav-sub="${escHtml(item.subId || "")}">
+      <div class="cat-card__img ${item.imagem ? "" : "cat-card__img--vazia"}">
+        ${item.imagem
+          ? `<img src="${escHtml(item.imagem)}" alt="" style="object-position:50% ${posY}%" loading="lazy" decoding="async">`
+          : SVG_FOLHA}
+      </div>
+      <div class="cat-card__body">
+        <h2 class="cat-card__nome">${escHtml(item.nome)}</h2>
+        <p class="cat-card__desc">${escHtml(desc)}</p>
+        <span class="cat-card__link">Ver serviços ${SVG_SETA}</span>
+      </div>
+    </a>`;
+}
+
+function desenharCards(itens) {
+  const grade = document.createElement("div");
+  grade.className = "cat-grid";
+  grade.innerHTML = itens.map(cartaoCategoria).join("");
+  grade.addEventListener("click", (e) => {
+    const link = e.target.closest("[data-nav-cat]");
+    if (!link || e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+    e.preventDefault();
+    navegar(link.dataset.navCat, link.dataset.navSub);
+  });
+  return grade;
+}
+
+function desenharServicos(lista) {
+  const grade = document.createElement("div");
+  grade.className = "svc-grid";
+  renderizarServicosCatalogo(grade, ordenarServicos(lista, CATEGORIAS));
+  return grade;
+}
+
+function renderRaiz() {
+  const arvore = arvoreVisivel();
+  cabecalho({
+    titulo: "Conheça nossas categorias",
+    subtitulo: "Escolha a categoria que você deseja e descubra todos os serviços disponíveis."
+  });
+  conteudo.replaceChildren();
+  if (!arvore.length) {
+    conteudo.innerHTML = `<div class="cat-grid"><div class="cat-vazio">Em breve, novidades por aqui.</div></div>`;
+    return;
+  }
+  conteudo.append(desenharCards(arvore.map(c => ({
+    ...c, catId: c.id, total: servicosDe(c.id).length,
+    href: `?categoria=${encodeURIComponent(c.id)}`
+  }))));
+}
+
+function renderCategoria(cat) {
+  const filhas = cat.filhas;
+  const diretos = servicosDe(cat.id).filter(s => !s.subcategoriaId || !filhas.some(f => f.id === s.subcategoriaId));
+
+  cabecalho({
+    voltarPara: { texto: "Voltar para categorias", acao: () => navegar() },
+    titulo: cat.nome,
+    subtitulo: filhas.length ? "Escolha uma especialidade" : (cat.descricao || "Escolha o serviço que você deseja agendar.")
+  });
+  conteudo.replaceChildren();
+
+  if (filhas.length) {
+    conteudo.append(desenharCards(filhas.map(f => ({
+      ...f, catId: cat.id, subId: f.id, total: servicosDe(cat.id, f.id).length,
+      href: `?categoria=${encodeURIComponent(cat.id)}&sub=${encodeURIComponent(f.id)}`
+    }))));
+    if (diretos.length) {
+      const titulo = document.createElement("h2");
+      titulo.className = "cat-secao-titulo";
+      titulo.textContent = `Outros serviços de ${cat.nome}`;
+      conteudo.append(titulo, desenharServicos(diretos));
+    }
+  } else {
+    conteudo.append(desenharServicos(diretos));
+  }
+}
+
+function renderSub(cat, sub) {
+  cabecalho({
+    voltarPara: { texto: `Voltar para ${cat.nome}`, acao: () => navegar(cat.id) },
+    titulo: sub.nome,
+    subtitulo: sub.descricao || "Escolha o serviço que você deseja agendar."
+  });
+  conteudo.replaceChildren(desenharServicos(servicosDe(cat.id, sub.id)));
+}
+
+function renderBusca() {
+  const busca = normalizarTexto(estado.termo);
+  const achados = SERVICOS.filter(s =>
+    normalizarTexto([s.nome, s.categoriaNome, s.subcategoriaNome, s.descricaoCurta, s.descricao].join(" ")).includes(busca));
+
+  cabecalho({
+    voltarPara: { texto: "Voltar para categorias", acao: () => navegar() },
+    titulo: `Resultados para “${estado.termo.trim()}”`
+  });
+  conteudo.replaceChildren();
+  if (!achados.length) {
+    conteudo.innerHTML = `<div class="cat-grid"><div class="cat-vazio">Não encontramos nada com esse nome. Que tal explorar as categorias?</div></div>`;
+    return;
+  }
+  conteudo.append(desenharServicos(achados));
+}
+
+function render() {
+  const arvore = arvoreVisivel();
+
+  if (estado.termo.trim()) return renderBusca();
+
+  const cat = arvore.find(c => c.id === estado.catId);
+  if (!cat) {
+    // Categoria da URL que não existe mais (ou ficou sem serviços): volta ao início.
+    estado.catId = "";
+    estado.subId = "";
+    return renderRaiz();
+  }
+  const sub = estado.subId ? cat.filhas.find(f => f.id === estado.subId) : null;
+  if (estado.subId && !sub) estado.subId = "";
+  return sub ? renderSub(cat, sub) : renderCategoria(cat);
+}
+
+// ---------- busca e seletor do cabeçalho ----------
+const buscaDebounced = debounce(() => {
+  history.replaceState(null, "", urlDoEstado());
+  render();
+}, 250);
+document.querySelector("#form-busca-servicos").addEventListener("submit", (e) => {
+  e.preventDefault();
+  estado.termo = inputBusca.value;
+  history.replaceState(null, "", urlDoEstado());
+  render();
+});
+inputBusca.addEventListener("input", (e) => {
+  estado.termo = e.target.value;
+  buscaDebounced();
+});
+
+// ---------- conta ----------
+function configurarContaUI() {
+  ouvirEstadoAuth((usuario) => {
+    const btnAdmin = document.querySelector("#abrir-admin");
+    const btnEntrar = document.querySelector("#btn-entrar");
+    const btnSair = document.querySelector("#btn-sair");
+    const btnMinhaConta = document.querySelector("#btn-minha-conta");
+
+    if (usuario) {
+      btnEntrar?.setAttribute("hidden", "");
+      btnSair?.removeAttribute("hidden");
+      btnMinhaConta?.removeAttribute("hidden");
+      if (ehAdmin()) btnAdmin?.removeAttribute("hidden");
+      else btnAdmin?.setAttribute("hidden", "");
+    } else {
+      btnEntrar?.removeAttribute("hidden");
+      btnSair?.setAttribute("hidden", "");
+      btnMinhaConta?.setAttribute("hidden", "");
+      btnAdmin?.setAttribute("hidden", "");
+    }
+  });
+
+  // "Entrar", "Minha conta" e "Painel Admin" abrem modais que só existem
+  // na página inicial — aqui redireciona pra lá já sinalizando qual abrir.
+  document.querySelector("#btn-entrar")?.addEventListener("click", () => { window.location.href = "/?abrir=login"; });
+  document.querySelector("#btn-minha-conta")?.addEventListener("click", () => { window.location.href = "/?abrir=conta"; });
+  document.querySelector("#abrir-admin")?.addEventListener("click", () => { window.location.href = "/?abrir=admin"; });
+  document.querySelector("#btn-sair")?.addEventListener("click", sair);
+}
+
+async function iniciar() {
+  configurarContaUI();
+  try {
+    const { categorias, servicos } = await listarServicosPublico();
+    CATEGORIAS = categorias;
+    SERVICOS = resolverNomesServicos(servicos, categorias);
+  } catch (erro) {
+    console.error("[servicos] falha ao carregar:", erro);
+    conteudo.innerHTML = `<div class="cat-grid"><div class="cat-vazio">Não foi possível carregar os serviços agora. Tente novamente em instantes.</div></div>`;
+    toast("Erro ao carregar serviços.", "error");
+    return;
+  }
+
+  render();
+}
+
+iniciar();
+</script>
+</body>
+</html>

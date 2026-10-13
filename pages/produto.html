@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title id="titulo-pagina">Produto — Espaço Viviane Vargas</title>
+<meta name="description" id="meta-descricao" content="Confira este produto no Espaço Viviane Vargas.">
+<link rel="icon" href="/assets/icons/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/modal.css">
+<link rel="stylesheet" href="/css/responsive.css?v=5">
+<style>
+  /* Impede que navegadores móveis alterem a escala ao carregar esta página. */
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  .product-detail__color { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; color: var(--cinza-700); }
+  .product-detail__color strong { color: var(--cinza-900); }
+  .color-dot {
+    width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+    border: 1px solid var(--cinza-300); display: inline-block;
+  }
+  .color-variants { display: grid; gap: 0.5rem; margin: 0.25rem 0; }
+  .color-variants__label { font-size: 0.85rem; color: var(--cinza-500); }
+  .color-variants__row { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+  .color-variants__item {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid var(--branco); box-shadow: 0 0 0 1.5px var(--cinza-300);
+    display: inline-block; transition: box-shadow var(--transicao), transform var(--transicao);
+  }
+  .color-variants__item:hover { transform: scale(1.08); }
+  .color-variants__item.is-active { box-shadow: 0 0 0 2px var(--azul-700); }
+
+  .trust-badges {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;
+    margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--cinza-100);
+  }
+  @media (min-width: 640px) {
+    .trust-badges { grid-template-columns: repeat(4, 1fr); }
+  }
+  .trust-badges__item { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.78rem; color: var(--cinza-500); min-width: 0; }
+  .trust-badges__item .icon { width: 20px; height: 20px; color: var(--azul-700); flex-shrink: 0; margin-top: 1px; }
+  .trust-badges__item strong { display: block; color: var(--cinza-900); font-size: 0.83rem; }
+
+  .product-tabs { margin-top: 2.5rem; display: grid; grid-template-columns: 1fr; gap: 2rem; align-items: start; min-width: 0; }
+  @media (min-width: 900px) {
+    .product-tabs { grid-template-columns: 1fr 300px; }
+  }
+  .product-tabs > div:first-child { min-width: 0; }
+  .product-tabs__nav { display: flex; flex-wrap: wrap; gap: 0.5rem 1.75rem; border-bottom: 1px solid var(--cinza-100); }
+  .product-tabs__btn {
+    display: flex; align-items: center; gap: 0.4rem; padding: 0.9rem 0.1rem;
+    font-size: 0.9rem; font-weight: 600; color: var(--cinza-500); white-space: nowrap;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .product-tabs__btn .icon { width: 16px; height: 16px; }
+  .product-tabs__btn.is-active { color: var(--azul-700); border-color: var(--azul-700); }
+  .product-tabs__panel { padding: 1.25rem 0; font-size: 0.92rem; color: var(--cinza-700); line-height: 1.6; }
+  .product-tabs__panel[hidden] { display: none; }
+  .product-tabs__info-grid { display: grid; gap: 0.5rem; }
+  .product-tabs__info-grid div { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--cinza-050); }
+  .product-tabs__info-grid dt { color: var(--cinza-500); }
+  .product-tabs__info-grid dd { font-weight: 600; color: var(--cinza-900); }
+
+  .product-highlights { background: var(--cinza-050); border-radius: var(--raio-md); padding: 1.25rem; }
+  .product-highlights h3 { font-size: 0.95rem; margin-bottom: 0.85rem; }
+  .product-highlights ul { display: grid; gap: 0.6rem; list-style: none; padding: 0; margin: 0; }
+  .product-highlights li { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; color: var(--cinza-700); }
+  .product-highlights li .icon { width: 16px; height: 16px; color: #15803d; flex-shrink: 0; margin-top: 2px; }
+
+  .related-section { padding-block: 1rem 2.5rem; }
+  .related-section__footer { display: flex; justify-content: center; margin-top: 1.5rem; }
+  .related-section__footer .btn-secondary { padding: 0.75rem 1.75rem; }
+</style>
+</head>
+<body>
+
+<a href="#conteudo" class="skip-link">Pular para o conteúdo</a>
+
+<header class="site-header">
+  <div class="container header-top">
+    <a href="/" class="logo">
+      <img src="/assets/images/logo.webp" alt="Espaço Viviane Vargas" class="logo__mark" width="256" height="256" decoding="async">
+      <span class="logo__text"><span class="logo__t1">Espaço</span><span class="logo__t2">Viviane Vargas</span><span class="logo__t3">Estética e salão de beleza</span></span>
+    </a>
+
+    <form class="search-bar" role="search" id="form-busca-produto">
+      <label for="busca-header" class="sr-only">Pesquisar produtos</label>
+      <input id="busca-header" type="search" placeholder="Buscar por nome, marca ou código..." autocomplete="off">
+      <button type="submit" class="search-bar__btn" aria-label="Pesquisar"><span data-icon="search"></span></button>
+    </form>
+
+    <div class="header-actions">
+      <a href="/pages/catalogo.html" class="header-action header-action--nav" aria-label="Catálogo"><span data-icon="shoppingBag"></span><span>Catálogo</span></a>
+      <a href="/pages/servicos.html" class="header-action header-action--nav" aria-label="Serviços"><span data-icon="calendar"></span><span>Serviços</span></a>
+      <button id="btn-entrar" class="header-action" data-modal-target="#modal-login" aria-label="Entrar">
+        <span data-icon="user"></span><span>Entrar</span>
+      </button>
+      <button id="btn-sair" class="header-action" hidden aria-label="Sair">
+        <span data-icon="logOut"></span><span>Sair</span>
+      </button>
+      <button id="btn-minha-conta" class="header-action" hidden data-modal-target="#modal-conta" aria-label="Minha conta">
+        <span data-icon="user"></span><span>Minha conta</span>
+      </button>
+      <button id="abrir-admin" class="header-action" hidden aria-label="Painel Admin">
+        <span data-icon="home"></span><span>Painel Admin</span>
+      </button>
+      <button id="abrir-carrinho" class="icon-btn" aria-label="Abrir carrinho">
+        <span data-icon="cart"></span><span class="cart-badge" data-cart-badge>0</span>
+      </button>
+      <button class="menu-toggle" aria-label="Abrir menu"><span data-icon="menu"></span></button>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="conteudo">
+  <nav class="breadcrumb" aria-label="Trilha de navegação">
+    <a href="/">Início</a>
+    <span data-icon="chevronRight"></span>
+    <a href="/pages/catalogo.html">Catálogo</a>
+    <span data-icon="chevronRight"></span>
+    <span class="breadcrumb__atual" id="breadcrumb-produto">Produto</span>
+  </nav>
+
+  <div id="produto-conteudo">
+    <div class="empty-state">Carregando produto...</div>
+  </div>
+
+  <section class="related-section" id="secao-relacionados" hidden>
+    <div class="section__head"><h2 class="section__title">Produtos relacionados</h2></div>
+    <div class="products-grid" id="grade-relacionados"></div>
+    <div class="related-section__footer">
+      <button type="button" class="btn-secondary" id="btn-ver-catalogo">Ver catálogo</button>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <h4>Espaço Viviane Vargas</h4>
+      <p>R. Benjamin Roriz - St. Aeroporto, Luziânia - GO, 72800-380</p>
+    </div>
+    <div>
+      <h4>Contato</h4>
+      <a href="https://wa.me/5561995072128" target="_blank" rel="noopener">WhatsApp</a>
+      <p>vivianefvargas@hotmail.com</p>
+    </div>
+    <div>
+      <h4>Redes sociais</h4>
+      <div class="social-row">
+        <a href="https://www.instagram.com/vivianefvargas/" aria-label="Instagram" target="_blank" rel="noopener"><span data-icon="instagram"></span></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 Espaço Viviane Vargas. Todos os direitos reservados.<span class="footer-credit">Desenvolvido por <a href="https://www.instagram.com/eduardo_xis" target="_blank" rel="noopener noreferrer">@eduardo_xis</a></span></div>
+</footer>
+
+<div class="cart-overlay" id="cart-overlay"></div>
+<aside class="cart-drawer" id="cart-drawer" aria-label="Carrinho de compras">
+  <div class="cart-drawer__head">
+    <h3>Seu carrinho</h3>
+    <button id="fechar-carrinho" class="modal__close" aria-label="Fechar carrinho"></button>
+  </div>
+  <div class="cart-drawer__items" id="itens-carrinho"></div>
+  <div class="cart-drawer__summary">
+    <div class="campo-nome-convidado" id="campo-nome-convidado">
+      <label for="nome-cliente">Seu nome</label>
+      <input id="nome-cliente" type="text" autocomplete="off" placeholder="Como podemos te chamar?">
+    </div>
+    <div class="summary-row"><span>Subtotal</span><span id="subtotal-carrinho">R$ 0,00</span></div>
+    <div class="summary-row summary-row--total"><span>Total</span><span id="total-carrinho">R$ 0,00</span></div>
+    <button class="btn-primary" id="finalizar-pedido">Finalizar pedido no WhatsApp</button>
+  </div>
+</aside>
+
+<script type="module">
+import { obterProduto, invalidarCachePublico, listarProdutosPorCategoria, listarProdutosVitrine, incrementarVisualizacao } from "../js/services/firestore.js";
+import { escHtml, getQueryParam, formatBRL, toast, podeExecutar, imgPos, registrarErroCliente } from "../js/utils/utils.js";
+import { renderizarGrade, cartaoProduto, compartilharProduto, obterFavoritos, obterIdsFavoritos, alternarFavorito, aplicarFavoritosSincronizados, produtoTemImagem } from "../js/modules/products.js";
+import { ouvirEstadoAuth, ehAdmin, sair } from "../js/services/auth.js";
+import {
+  obterCarrinho, adicionarAoCarrinho, atualizarQuantidade, calcularTotais,
+  atualizarBadgeCarrinho, falarSobreProduto, finalizarPedidoWhatsApp, aplicarCarrinhoSincronizado
+} from "../js/modules/cart.js";
+import { iniciarSincronizacaoConta } from "../js/services/contaSync.js";
+import { ICONS, icon } from "../js/utils/icons.js";
+import { iniciarLoadingGlobal } from "../js/utils/loadingUI.js";
+import { observarAtualizacaoPublica } from "../js/services/public-sync.js";
+
+iniciarLoadingGlobal();
+let recargaPublicaAgendada = false;
+observarAtualizacaoPublica(() => {
+  if (recargaPublicaAgendada) return;
+  recargaPublicaAgendada = true;
+  invalidarCachePublico();
+  window.setTimeout(() => window.location.reload(), 500);
+});
+
+(function monitorarErrosGlobais() {
+  const jaRegistrados = new Set();
+  function registrar(origem, erro) {
+    const chave = `${origem}:${String(erro?.message || erro)}`;
+    if (jaRegistrados.has(chave)) return;
+    jaRegistrados.add(chave);
+    registrarErroCliente(origem, erro);
+  }
+  window.addEventListener("error", (e) => registrar("erro-js-global", e.error || e.message));
+  window.addEventListener("unhandledrejection", (e) => registrar("promise-rejeitada", e.reason));
+})();
+
+function aplicarIconesEstaticos() {
+  document.querySelectorAll("[data-icon]").forEach(el => {
+    const nome = el.dataset.icon;
+    if (ICONS[nome] && !el.querySelector("svg")) {
+      el.innerHTML = ICONS[nome];
+      el.classList.add("icon");
+    }
+  });
+}
+aplicarIconesEstaticos();
+
+const id = getQueryParam("id");
+const container = document.querySelector("#produto-conteudo");
+
+function normalizar(txt = "") {
+  return txt.trim().toLowerCase();
+}
+
+let corSelecionada = "";
+
+function renderizarGaleriaHtml(imgs, nomeProduto) {
+  return `
+    ${imgs.length > 1 ? `
+    <div class="product-detail__thumbs" id="galeria-thumbs">
+      ${imgs.map((img, i) => `
+        <button type="button" class="product-detail__thumb ${i === 0 ? "is-active" : ""}" data-thumb="${i}">
+          <img src="${imgPos(img, 180).src}" style="object-position:${imgPos(img).pos}" alt="${escHtml(nomeProduto)} - imagem ${i + 1}" loading="lazy" decoding="async">
+        </button>`).join("")}
+    </div>` : ""}
+    <div class="product-detail__image">
+      <img id="imagem-principal" src="${imgPos(imgs[0], 960).src || "/assets/images/placeholder.svg"}" style="object-position:${imgPos(imgs[0]).pos}" alt="${escHtml(nomeProduto)}" decoding="async" fetchpriority="high">
+    </div>`;
+}
+
+function renderizarSeletorCores(produto) {
+  const cores = Array.isArray(produto.cores) ? produto.cores.filter(c => c && c.nome) : [];
+  if (!cores.length) return "";
+  if (!corSelecionada) corSelecionada = (cores.find(c => c.padrao) || cores[0]).nome;
+  return `
+    <div class="color-variants">
+      <span class="color-variants__label" id="label-cor-selecionada">Cor: ${escHtml(corSelecionada)}</span>
+      <div class="color-variants__row" id="seletor-cores">
+        ${cores.map(c => {
+          const imgsCor = Array.isArray(c.imagens) ? c.imagens.filter(Boolean) : (c.imagem ? [c.imagem] : []);
+          return `
+          <button type="button" class="color-variants__item ${c.nome === corSelecionada ? "is-active" : ""}"
+             style="background:${escHtml(c.hex || "#cccccc")}"
+             data-cor="${escHtml(c.nome)}" data-cor-imagens='${escHtml(JSON.stringify(imgsCor))}'
+             title="${escHtml(c.nome)}" aria-label="Cor: ${escHtml(c.nome)}"></button>`;
+        }).join("")}
+      </div>
+    </div>`;
+}
+
+async function renderizarRelacionados(produto) {
+  try {
+    const limiteRelacionados = 8;
+    // Prioriza itens da mesma categoria. Se não houver outros itens nela,
+    // mantém a seção útil com produtos em destaque do catálogo.
+    const daCategoria = produto.categoria
+      ? await listarProdutosPorCategoria(produto.categoria, limiteRelacionados + 1)
+      : [];
+    let relacionados = daCategoria
+      .filter(p => p.id !== produto.id)
+      .slice(0, limiteRelacionados);
+
+    // Completa a grade com itens da vitrine quando a categoria possuir menos
+    // que oito produtos, sem repetir o produto aberto ou itens já exibidos.
+    if (relacionados.length < limiteRelacionados) {
+      const vitrine = await listarProdutosVitrine(limiteRelacionados + 4);
+      const idsJaUsados = new Set([produto.id, ...relacionados.map(p => p.id)]);
+      const faltantes = limiteRelacionados - relacionados.length;
+      relacionados = relacionados.concat(
+        vitrine.filter(p => !idsJaUsados.has(p.id)).slice(0, faltantes)
+      );
+    }
+    if (!relacionados.length) return;
+    document.querySelector("#secao-relacionados").hidden = false;
+    renderizarGrade(document.querySelector("#grade-relacionados"), relacionados);
+  } catch { /* silencioso: seção de relacionados é só um bônus */ }
+}
+
+async function iniciarProduto() {
+  if (!id) {
+    container.innerHTML = `<div class="empty-state">
+      <strong>Produto não informado.</strong>
+      <p>Volte ao catálogo para escolher um produto.</p>
+      <a href="/pages/catalogo.html" class="btn-primary">Ver catálogo</a>
+    </div>`;
+    return;
+  }
+
+  const produto = await obterProduto(id);
+  if (!produto || !produtoTemImagem(produto)) {
+    container.innerHTML = `<div class="empty-state">
+      <strong>Produto não encontrado.</strong>
+      <p>Ele pode ter sido removido ou o link está incorreto.</p>
+      <a href="/pages/catalogo.html" class="btn-primary">Ver catálogo</a>
+    </div>`;
+    return;
+  }
+
+  incrementarVisualizacao(id).catch(() => {});
+
+  document.querySelector("#titulo-pagina").textContent = `${produto.nome} — Espaço Viviane Vargas`;
+  document.querySelector("#meta-descricao").setAttribute("content", (produto.descricao || produto.nome).slice(0, 155));
+  document.querySelector("#breadcrumb-produto").textContent = produto.nome;
+
+  const imagensGerais = (Array.isArray(produto.imagens) && produto.imagens.length ? produto.imagens : [produto.imagem]).filter(Boolean);
+  const corInicial = Array.isArray(produto.cores) ? (produto.cores.find(c => c && c.nome && c.padrao) || produto.cores.find(c => c && c.nome)) : null;
+  const imagensCorInicial = corInicial && Array.isArray(corInicial.imagens) ? corInicial.imagens.filter(Boolean) : [];
+  let imagens = imagensCorInicial.length ? imagensCorInicial : imagensGerais;
+  const semEstoque = produto.status === "sem_estoque" || Number(produto.quantidade) <= 0;
+  const favoritado = obterIdsFavoritos().includes(produto.id);
+  const destaques = Array.isArray(produto.destaques) ? produto.destaques.filter(Boolean) : [];
+
+  container.innerHTML = `
+    <div class="product-detail">
+      <div class="product-detail__gallery" id="product-gallery">
+        ${renderizarGaleriaHtml(imagens, produto.nome)}
+      </div>
+
+      <div class="product-detail__info">
+        ${produto.marca ? `<span class="product-detail__brand">${escHtml(produto.marca)}</span>` : ""}
+        <h1 class="product-detail__name">${escHtml(produto.nome)}</h1>
+        <span class="product-detail__price">${formatBRL(produto.preco)}</span>
+
+        <div class="product-detail__meta">
+          ${produto.codigo ? `<span>Código: ${escHtml(produto.codigo)}</span>` : ""}
+          <span class="${semEstoque ? "" : "product-detail__meta--ok"}">${semEstoque ? "Sem estoque no momento" : "Disponível"}</span>
+        </div>
+
+        ${!semEstoque ? `
+        <div>
+          <span class="color-variants__label" style="display:block;margin-bottom:0.35rem">Quantidade</span>
+          <div class="qty-stepper" style="width:fit-content">
+            <button type="button" id="dim" aria-label="Diminuir quantidade">−</button>
+            <input id="qtd" type="number" value="1" min="1">
+            <button type="button" id="aum" aria-label="Aumentar quantidade">+</button>
+          </div>
+        </div>` : ""}
+
+        ${renderizarSeletorCores(produto)}
+
+        <div class="product-detail__actions">
+          <button class="btn-primary" id="add-carrinho" ${semEstoque ? "disabled" : ""}><span data-icon="cart"></span>Adicionar ao carrinho</button>
+          <button class="btn-whatsapp-lg" id="falar-produto"><span data-icon="whatsapp"></span>Falar sobre este produto</button>
+          <div class="product-detail__actions-row">
+            <button class="btn-secondary ${favoritado ? "is-active" : ""}" id="fav-produto"><span data-icon="heart"></span>${favoritado ? "Favoritado" : "Favoritar"}</button>
+            <button class="btn-secondary" id="compartilhar"><span data-icon="messageSquare"></span>Compartilhar</button>
+          </div>
+          <button class="btn-secondary" id="copiar-link"><span data-icon="copy"></span>Copiar link do produto</button>
+        </div>
+
+        <div class="trust-badges">
+          <div class="trust-badges__item"><span data-icon="shieldCheck"></span><span><strong>Compra segura</strong>Seus dados protegidos</span></div>
+          <div class="trust-badges__item"><span data-icon="truck"></span><span><strong>Envio rápido</strong>Para todo o Brasil</span></div>
+          <div class="trust-badges__item"><span data-icon="box"></span><span><strong>Troca fácil</strong>Até 7 dias após o recebimento</span></div>
+          <div class="trust-badges__item"><span data-icon="creditCard"></span><span><strong>Pagamento seguro</strong>Cartão ou Pix</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-tabs">
+      <div>
+        <div class="product-tabs__nav" role="tablist">
+          <button type="button" class="product-tabs__btn is-active" data-tab="descricao"><span data-icon="clipboardList"></span>Descrição</button>
+          <button type="button" class="product-tabs__btn" data-tab="info"><span data-icon="tag"></span>Informações</button>
+          <button type="button" class="product-tabs__btn" data-tab="entrega"><span data-icon="truck"></span>Entrega e devoluções</button>
+        </div>
+        <div class="product-tabs__panel" data-panel="descricao">
+          ${produto.descricao ? escHtml(produto.descricao) : "Este produto ainda não tem uma descrição detalhada."}
+        </div>
+        <div class="product-tabs__panel" data-panel="info" hidden>
+          <dl class="product-tabs__info-grid">
+            ${produto.marca ? `<div><dt>Marca</dt><dd>${escHtml(produto.marca)}</dd></div>` : ""}
+            ${corSelecionada ? `<div><dt>Cor</dt><dd>${escHtml(corSelecionada)}</dd></div>` : ""}
+            ${produto.categoria ? `<div><dt>Categoria</dt><dd>${escHtml(produto.categoria)}</dd></div>` : ""}
+            ${produto.codigo ? `<div><dt>Código</dt><dd>${escHtml(produto.codigo)}</dd></div>` : ""}
+          </dl>
+        </div>
+        <div class="product-tabs__panel" data-panel="entrega" hidden>
+          Enviamos para todo o Brasil. Prazos e valores de frete são calculados na finalização do pedido pelo WhatsApp.
+          Trocas e devoluções em até 7 dias corridos após o recebimento, desde que o produto esteja sem uso e na embalagem original.
+        </div>
+      </div>
+      ${destaques.length ? `
+      <aside class="product-highlights">
+        <h3>Destaques do produto</h3>
+        <ul>
+          ${destaques.map(item => `<li><span data-icon="star"></span>${escHtml(item)}</li>`).join("")}
+        </ul>
+      </aside>` : ""}
+    </div>`;
+
+  aplicarIconesEstaticos();
+
+  document.querySelectorAll(".product-tabs__btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".product-tabs__btn").forEach(b => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      document.querySelectorAll(".product-tabs__panel").forEach(p => {
+        p.hidden = p.dataset.panel !== btn.dataset.tab;
+      });
+    });
+  });
+
+  function bindGaleriaThumbs() {
+    const thumbsEl = document.querySelector("#galeria-thumbs");
+    thumbsEl?.querySelectorAll("[data-thumb]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const { src, pos } = imgPos(imagens[Number(btn.dataset.thumb)], 960);
+        const principal = document.querySelector("#imagem-principal");
+        principal.src = src;
+        principal.style.objectPosition = pos;
+        thumbsEl.querySelectorAll("[data-thumb]").forEach(b => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+      });
+    });
+  }
+  bindGaleriaThumbs();
+
+  document.querySelector("#seletor-cores")?.querySelectorAll("[data-cor]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      corSelecionada = btn.dataset.cor;
+      document.querySelectorAll("#seletor-cores [data-cor]").forEach(b => b.classList.toggle("is-active", b.dataset.cor === corSelecionada));
+      const label = document.querySelector("#label-cor-selecionada");
+      if (label) label.textContent = `Cor: ${corSelecionada}`;
+
+      let imagensCor = [];
+      try { imagensCor = JSON.parse(btn.dataset.corImagens || "[]"); } catch { imagensCor = []; }
+      if (imagensCor.length) {
+        imagens = imagensCor;
+        const galeriaEl = document.querySelector("#product-gallery");
+        if (galeriaEl) {
+          galeriaEl.innerHTML = renderizarGaleriaHtml(imagens, produto.nome);
+          bindGaleriaThumbs();
+        }
+      }
+    });
+  });
+
+  const inputQtd = document.querySelector("#qtd");
+  document.querySelector("#dim")?.addEventListener("click", () => {
+    inputQtd.value = Math.max(1, parseInt(inputQtd.value, 10) - 1);
+  });
+  document.querySelector("#aum")?.addEventListener("click", () => {
+    inputQtd.value = parseInt(inputQtd.value, 10) + 1;
+  });
+
+  document.querySelector("#add-carrinho")?.addEventListener("click", () => {
+    const qtd = inputQtd ? Math.max(1, parseInt(inputQtd.value, 10) || 1) : 1;
+    adicionarAoCarrinho(produto, qtd, corSelecionada);
+    toast("Produto adicionado ao carrinho.");
+    atualizarBadgeCarrinho();
+  });
+
+  document.querySelector("#falar-produto")?.addEventListener("click", () => falarSobreProduto(corSelecionada ? { ...produto, nome: `${produto.nome} (Cor: ${corSelecionada})` } : produto));
+
+  document.querySelector("#fav-produto")?.addEventListener("click", (e) => {
+    const ativo = alternarFavorito(produto.id, produto);
+    e.currentTarget.classList.toggle("is-active", ativo);
+    e.currentTarget.innerHTML = `${icon("heart")}${ativo ? "Favoritado" : "Favoritar"}`;
+  });
+
+  document.querySelector("#compartilhar")?.addEventListener("click", async () => {
+    const resultado = await compartilharProduto(produto);
+    if (resultado === "copiado") toast("Link copiado para a área de transferência.");
+  });
+
+  document.querySelector("#copiar-link")?.addEventListener("click", async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    toast("Link copiado para a área de transferência.");
+  });
+
+  renderizarRelacionados(produto);
+}
+
+const gradeRelacionados = document.querySelector("#grade-relacionados");
+document.querySelector("#btn-ver-catalogo")?.addEventListener("click", () => {
+  window.location.href = "/pages/catalogo.html";
+});
+gradeRelacionados.addEventListener("adicionar-carrinho", (e) => {
+  adicionarAoCarrinho(e.detail, 1);
+  toast("Produto adicionado ao carrinho.");
+  atualizarBadgeCarrinho();
+});
+gradeRelacionados.addEventListener("falar-produto", (e) => falarSobreProduto(e.detail));
+
+document.querySelector("#form-busca-produto").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const termo = document.querySelector("#busca-header").value.trim();
+  window.location.href = `/pages/catalogo.html${termo ? `?q=${encodeURIComponent(termo)}` : ""}`;
+});
+
+function configurarCarrinhoUI() {
+  const drawer = document.querySelector("#cart-drawer");
+  const overlay = document.querySelector("#cart-overlay");
+  const abrirBtn = document.querySelector("#abrir-carrinho");
+  const fecharBtn = document.querySelector("#fechar-carrinho");
+
+  function renderCarrinho() {
+    const carrinho = obterCarrinho();
+    const lista = document.querySelector("#itens-carrinho");
+    const { subtotal, total } = calcularTotais(carrinho);
+    lista.innerHTML = carrinho.map(item => `
+      <div class="cart-item" data-chave="${escHtml(item.chave || item.id)}">
+        <img src="${imgPos(item.imagem, 160).src || "/assets/images/placeholder.svg"}" alt="${escHtml(item.nome)}" loading="lazy" decoding="async">
+        <div>
+          <div class="cart-item__name">${escHtml(item.nome)}</div>
+          <div class="cart-item__brand">${escHtml(item.marca)}${item.cor ? ` • Cor: ${escHtml(item.cor)}` : ""}</div>
+          <div class="qty-stepper">
+            <button data-diminuir>-</button>
+            <input type="number" value="${item.quantidade}" min="1" data-qtd>
+            <button data-aumentar>+</button>
+          </div>
+        </div>
+        <strong>${formatBRL(item.preco * item.quantidade)}</strong>
+      </div>`).join("") || `<p class="empty-state">Seu carrinho está vazio.</p>`;
+
+    document.querySelector("#subtotal-carrinho").textContent = formatBRL(subtotal);
+    document.querySelector("#total-carrinho").textContent = formatBRL(total);
+
+    lista.querySelectorAll(".cart-item").forEach(el => {
+      const chave2 = el.dataset.chave;
+      const input = el.querySelector("[data-qtd]");
+      el.querySelector("[data-aumentar]").addEventListener("click", () => {
+        atualizarQuantidade(chave2, parseInt(input.value, 10) + 1);
+        renderCarrinho();
+        atualizarBadgeCarrinho();
+      });
+      el.querySelector("[data-diminuir]").addEventListener("click", () => {
+        atualizarQuantidade(chave2, parseInt(input.value, 10) - 1);
+        renderCarrinho();
+        atualizarBadgeCarrinho();
+      });
+      input.addEventListener("change", () => {
+        atualizarQuantidade(chave2, parseInt(input.value, 10) || 0);
+        renderCarrinho();
+        atualizarBadgeCarrinho();
+      });
+    });
+  }
+
+  function abrir() {
+    renderCarrinho();
+    drawer.classList.add("is-open");
+    overlay.classList.add("is-open");
+  }
+  function fechar() {
+    drawer.classList.remove("is-open");
+    overlay.classList.remove("is-open");
+  }
+
+  abrirBtn?.addEventListener("click", abrir);
+  fecharBtn?.addEventListener("click", fechar);
+  overlay?.addEventListener("click", fechar);
+
+  document.querySelector("#finalizar-pedido")?.addEventListener("click", () => {
+    const carrinho = obterCarrinho();
+    if (!carrinho.length) { toast("Seu carrinho está vazio.", "error"); return; }
+    if (!podeExecutar("finalizar-pedido", 5, 60_000)) {
+      toast("Muitos pedidos em pouco tempo. Aguarde um instante.", "error");
+      return;
+    }
+    const nome = document.querySelector("#nome-cliente")?.value?.trim();
+    finalizarPedidoWhatsApp(nome);
+    fechar();
+  });
+}
+
+function configurarLogin() {
+  ouvirEstadoAuth((usuario) => {
+    // Mantém carrinho e favoritos desta página sincronizados com a conta,
+    // para que itens favoritados aqui apareçam imediatamente em "Minha conta".
+    iniciarSincronizacaoConta(usuario?.uid, {
+      carrinhoLocal: obterCarrinho,
+      favoritosLocais: obterFavoritos,
+      aplicarCarrinho: aplicarCarrinhoSincronizado,
+      aplicarFavoritos: aplicarFavoritosSincronizados
+    });
+
+    const btnAdmin = document.querySelector("#abrir-admin");
+    const btnEntrar = document.querySelector("#btn-entrar");
+    const btnSair = document.querySelector("#btn-sair");
+    const btnMinhaConta = document.querySelector("#btn-minha-conta");
+
+    if (usuario) {
+      btnEntrar?.setAttribute("hidden", "");
+      btnSair?.removeAttribute("hidden");
+      btnMinhaConta?.removeAttribute("hidden");
+      if (ehAdmin()) btnAdmin?.removeAttribute("hidden");
+      else btnAdmin?.setAttribute("hidden", "");
+    } else {
+      btnEntrar?.removeAttribute("hidden");
+      btnSair?.setAttribute("hidden", "");
+      btnMinhaConta?.setAttribute("hidden", "");
+      btnAdmin?.setAttribute("hidden", "");
+    }
+  });
+
+  // "Entrar", "Minha conta" e "Painel Admin" abrem os modais correspondentes
+  // — que só existem na página inicial. Aqui redireciona pra lá.
+  document.querySelector("#btn-entrar")?.addEventListener("click", () => {
+    window.location.href = "/?abrir=login";
+  });
+  document.querySelector("#btn-minha-conta")?.addEventListener("click", () => {
+    window.location.href = "/?abrir=conta";
+  });
+  document.querySelector("#abrir-admin")?.addEventListener("click", () => {
+    window.location.href = "/?abrir=admin";
+  });
+  document.querySelector("#btn-sair")?.addEventListener("click", sair);
+}
+
+configurarCarrinhoUI();
+configurarLogin();
+atualizarBadgeCarrinho();
+iniciarProduto();
+</script>
+</body>
+</html>
