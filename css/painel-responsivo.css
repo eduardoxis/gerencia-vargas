@@ -1,6 +1,10 @@
 /* Proteção visual para qualquer tamanho de tela. */
 .portal-load-error { display: grid; place-items: start; gap: .65rem; max-width: 500px; margin: 2rem auto; padding: 1.5rem; border: 1px solid #eadbd4; border-radius: 14px; background: #fff; color: #3c2821; }
 .portal-load-error p { margin: 0; color: #78665c; }
+.portal-carregando { display: flex; align-items: center; gap: 1rem; max-width: 520px; margin: 2rem auto; padding: 1.5rem; border: 1px solid #eadbd4; border-radius: 14px; background: #fff; color: #3c2821; }
+.portal-carregando p { margin: .3rem 0 0; color: #78665c; }
+.portal-carregando__ponto { width: 1rem; height: 1rem; flex: 0 0 auto; border: 3px solid #eadbd4; border-top-color: #851018; border-radius: 50%; animation: portal-girar .8s linear infinite; }
+@keyframes portal-girar { to { transform: rotate(360deg); } }
 
 @media (max-width: 640px) {
   .portal-main .tabs-content { width: 100%; box-sizing: border-box; }
