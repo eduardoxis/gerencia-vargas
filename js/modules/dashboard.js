@@ -268,10 +268,24 @@ function renderizarRankingDashboard(produtos, campo) {
 async function carregarDashboard(container) {
   if (!container) return;
 
+  let resumo;
+  try {
+    resumo = await obterResumoDashboard();
+  } catch (erro) {
+    // O resumo usa agregações do Firestore. Se alguma agregação ainda não
+    // estiver disponível no projeto, a tela nunca pode ficar vazia.
+    console.error("[painel] falha ao montar o resumo:", erro);
+    container.innerHTML = `<div class="portal-load-error portal-load-error--dashboard"><strong>Visão geral temporariamente indisponível.</strong><p>Os demais recursos continuam disponíveis. Abra Produtos, Serviços ou outra seção pelo menu lateral.</p><button type="button" class="btn-primary" data-abrir-produtos>Ver produtos</button></div>`;
+    container.querySelector("[data-abrir-produtos]")?.addEventListener("click", () => {
+      container.closest("#portal-app")?.querySelector('[data-tab-trigger="produtos"]')?.click();
+    });
+    return;
+  }
+
   const {
     totalProdutos, totalCategorias, totalEstoque, semEstoque,
     totalUsuarios, maisVistos, maisCompartilhados
-  } = await obterResumoDashboard();
+  } = resumo;
 
   container.innerHTML = `
     <div class="dashboard-shell">

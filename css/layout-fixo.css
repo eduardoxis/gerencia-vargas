@@ -1,0 +1,18 @@
+/* Estrutura de desktop igual ao painel de referência: menu e cabeçalho
+   permanecem visíveis; somente o conteúdo central rola. */
+@media (min-width: 641px) {
+  html, body.portal-body { height: 100%; overflow: hidden; }
+  .portal-shell { height: 100dvh; min-height: 100dvh; overflow: hidden; }
+  .portal-sidebar { width: 252px; }
+  .portal-main { height: 100dvh; min-height: 0; overflow-x: hidden; overflow-y: auto; }
+  .portal-topbar { position: sticky; top: 0; }
+}
+
+@media (min-width: 641px) and (max-width: 900px) {
+  .portal-sidebar { width: 78px; }
+}
+
+@media (max-width: 640px) {
+  html, body.portal-body { overflow-x: hidden; }
+  .portal-shell, .portal-main { height: auto; overflow: visible; }
+}
