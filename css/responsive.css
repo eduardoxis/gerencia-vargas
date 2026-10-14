@@ -1,0 +1,328 @@
+/* ===== RESPONSIVE ===== */
+
+/* 5 cards por linha em telas largas; abaixo de 1180px caem para 3 pra
+   cada card manter largura confortável. Este bloco fica ANTES dos de 760px
+   e 480px de propósito (mesma especificidade: o último que aparece vence). */
+@media (max-width: 1180px) {
+  .products-grid, .products-grid--5col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #destaques .products-grid,
+  #recentes .products-grid,
+  #resultados-busca .products-grid,
+  #produtos .products-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 980px) {
+  /* Evita o zoom automático do iOS Safari ao focar em qualquer campo
+     (ele dá zoom sozinho quando a fonte do input fica abaixo de 16px). */
+  input, select, textarea { font-size: 16px !important; }
+
+  .modal__body { flex-direction: column; }
+  .tabs-nav { width: 100%; flex-direction: row; align-items: center; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--cinza-100); gap: 0.75rem; }
+  .tabs-nav__list { flex-direction: row; }
+  .tabs-nav button .nav-label { display: none; }
+  .tabs-nav__summary { display: none; }
+  .product-detail { grid-template-columns: 1fr; }
+  .product-tabs { grid-template-columns: 1fr; }
+  .trust-badges { grid-template-columns: repeat(2, 1fr); }
+  .product-detail__gallery { flex-direction: column-reverse; }
+  .product-detail__thumbs { flex-direction: row; overflow-x: auto; }
+  .product-detail__thumb { width: 56px; height: 56px; }
+  .product-detail__specs li { grid-template-columns: 18px 110px 1fr; }
+  .product-detail__image { aspect-ratio: 4 / 3; }
+  .product-detail__image img { object-fit: contain; padding: 1.25rem; box-sizing: border-box; background: var(--branco); }
+  .header-nav__links { display: none; }
+  .products-grid, .products-grid--5col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #destaques .products-grid, #recentes .products-grid, #resultados-busca .products-grid, #produtos .products-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .search-page__layout { grid-template-columns: 1fr; }
+  .search-page__filters { position: static; }
+}
+
+@media (max-width: 760px) {
+  /* Mantém a página firme no eixo horizontal. A rolagem vertical e o zoom
+     continuam funcionando normalmente. */
+  html, body {
+    width: 100%; max-width: 100%;
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+    touch-action: pan-y pinch-zoom;
+  }
+  .site-header, main, .hero, .site-footer { width: 100%; max-width: 100%; overflow-x: clip; }
+
+  /* ---- cabeçalho compacto da vitrine mobile ---- */
+  .site-header { border-bottom: 0; border-radius: 0 0 22px 22px; box-shadow: 0 3px 14px rgba(74, 40, 28, 0.06); }
+  .header-top { flex-wrap: wrap; row-gap: 0.65rem; padding: 0.7rem 0 0.8rem; }
+  .logo { min-width: 0; flex: 1 1 0; gap: 0.42rem; font-size: 0.9rem; }
+  .logo__mark { width: 42px; height: 42px; }
+  .header-actions { order: 2; margin-left: auto; flex-wrap: nowrap; gap: 0.35rem; }
+  .header-action {
+    width: 42px; height: 42px; padding: 0; justify-content: center;
+    border-radius: 50%; border: 1px solid var(--cinza-300);
+  }
+  .header-action span:last-child { display: none; }
+  .header-action .icon { width: 17px; height: 17px; }
+  /* No celular, sair continua disponível dentro de "Minha conta". Ocultar
+     o atalho evita que quatro ícones quebrem a primeira linha do cabeçalho. */
+  #btn-sair { display: none !important; }
+  .icon-btn { width: 42px; height: 42px; }
+  .menu-toggle { display: none; }
+  .search-bar { order: 3; flex-basis: 100%; min-height: 48px; padding-left: 0.8rem; }
+  .search-bar__leading { display: inline-flex; width: 20px; height: 20px; color: var(--azul-900); flex-shrink: 0; }
+  .search-bar__leading .icon { width: 20px; height: 20px; }
+  .search-bar input { padding-block: 0.45rem; font-size: 0.82rem !important; }
+  .search-bar__btn { width: 42px; height: 42px; }
+  .select-pill { order: 4; flex-basis: 100%; }
+  .select-pill select { width: 100%; box-sizing: border-box; }
+
+  /* ---- hero: texto à esquerda e composição visual à direita ---- */
+  .hero {
+    min-height: 465px; padding: 0;
+    background: var(--branco);
+  }
+  .hero::after { content: ""; position: absolute; inset: auto 0 0; height: 135px; background: transparent; pointer-events: none; z-index: 1; }
+  .hero__inner { position: relative; display: block; min-height: 465px; }
+  .hero__content { position: relative; z-index: 3; width: min(58%, 255px); min-width: 0; padding-top: 0.7rem; gap: 0.95rem; }
+  .hero__eyebrow { font-size: 0.62rem; padding: 0.35rem 0.55rem; }
+  .hero__title { font-size: clamp(1.72rem, 8vw, 2.2rem); line-height: 1.02; letter-spacing: -0.04em; }
+  .hero__subtitle { font-size: 0.78rem; line-height: 1.3; max-width: 22ch; }
+  .hero__actions { display: grid; gap: 0.65rem; margin-top: 0.4rem; width: min(230px, 100%); }
+  .hero__actions a { min-height: 42px; padding: 0.6rem 0.75rem; justify-content: center; font-size: 0.75rem; }
+  .hero__actions .btn-whatsapp-lg { background: rgba(255,255,255,.96); color: #16a34a; box-shadow: var(--sombra-sm); }
+  .hero__art { position: absolute; z-index: 2; left: -0.5rem; bottom: -0.25rem; width: 760px; max-width: none; min-width: 0; min-height: 0; display: block; pointer-events: none; }
+  .hero__art picture { width: 100%; display: block; mask-image: none; }
+  .hero__art-img { width: 100%; max-width: none; border-radius: 0; }
+  .hero__features { display: none; }
+  .mobile-benefits {
+    position: relative; z-index: 5;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0;
+    margin-top: -0.8rem; margin-bottom: 0; padding: 0.85rem 0.25rem; min-height: 104px;
+    list-style: none;
+    border-radius: 18px; background: rgba(255,255,255,.96);
+    box-shadow: 0 10px 30px rgba(74, 40, 28, 0.10);
+    backdrop-filter: blur(8px);
+  }
+  .mobile-benefits li {
+    position: relative; display: flex; flex-direction: column; align-items: center;
+    justify-content: flex-start; gap: 0.35rem; padding: 0 0.3rem; text-align: center;
+  }
+  .mobile-benefits li:not(:last-child)::after {
+    content: ""; position: absolute; top: 0.35rem; right: 0; bottom: 0.35rem;
+    width: 1px; background: var(--cinza-200);
+  }
+  .mobile-benefits__icon {
+    display: grid; place-items: center; flex-shrink: 0; border-radius: 50%;
+    width: 43px; height: 43px; box-sizing: border-box; padding: 10px;
+    color: var(--azul-700); background: #f4e8df; box-shadow: none;
+  }
+  .mobile-benefits__icon .icon, .mobile-benefits__icon svg { width: 100%; height: 100%; }
+  .mobile-benefits__icon--whatsapp { color: #16a34a; background: #dcfce7; }
+  .mobile-benefits strong { display: block; color: var(--azul-900); font-size: 0.65rem; line-height: 1.15; }
+  .mobile-benefits li > div > span {
+    display: block; color: var(--cinza-500);
+    margin-top: 0.25rem; font-size: 0.53rem; line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .cart-drawer { width: 100vw; }
+  .modal--sheet { padding-bottom: 0; }
+  body:has(.bottom-nav) { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
+  .bottom-nav { display: flex; }
+  .related-products__track .product-card { flex: 0 0 calc((100% - 1rem) / 2); }
+  .related-products__head h2 { font-size: 1.1rem; }
+
+  /* Perfil/conta: no mobile o ícone de perfil não aparece no menu superior em
+     nenhuma página. O acesso fica no botão "Conta" da barra inferior. */
+  #btn-entrar, #btn-minha-conta { display: none !important; }
+
+  /* Toast no mobile: embaixo (no desktop fica em cima, ver style.css). */
+  .toast {
+    top: auto;
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    transform: translate(-50%, 20px);
+  }
+  .toast.show { transform: translate(-50%, 0); }
+
+  /* Com o carrinho aberto, o rodapé (subtotal/total/botão Finalizar) reserva
+     um espaço extra embaixo pra caber o toast sem tampar o botão. */
+  .cart-drawer__summary { padding-bottom: calc(1.25rem + 60px); }
+  body:has(.cart-drawer.is-open) .toast {
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* ---- catálogo/busca: filtros viram painel recolhível ---- */
+  .search-page__btn-filtros { display: flex; }
+  .products-grid, .products-grid--5col { grid-template-columns: repeat(2, 1fr); }
+  #destaques .products-grid, #recentes .products-grid, #resultados-busca .products-grid, #produtos .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; gap: 0.7rem; }
+  .search-page__filters {
+    display: none;
+    margin-bottom: 1.25rem;
+    position: static;
+    padding: 0.25rem 1.1rem;
+  }
+  .search-page__filters.is-aberto { display: block; }
+  .search-page__filters-head { display: none; }
+}
+
+@media (max-width: 480px) {
+  .container { width: 94vw; }
+  .products-grid { grid-template-columns: repeat(2, 1fr); gap: 0.7rem; }
+  .products-grid--5col { grid-template-columns: repeat(2, 1fr); }
+  /* minmax(0, 1fr) permite que as três colunas encolham dentro da tela,
+     inclusive quando uma categoria tem nome longo. */
+  .categories-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .category-card { min-width: 0; }
+  .stat-card span { font-size: 1.3rem; }
+
+  /* Cards de produto em tamanho padrão: nome não estica o card, trunca com "..." */
+  .product-card__brand { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .product-card__name {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; min-height: calc(1.3em * 2);
+  }
+  /* Botões empilhados em vez de lado a lado, WhatsApp com texto */
+  .product-card__actions { flex-direction: column; }
+  .product-card__add { width: 100%; padding: 0.6rem 0.8rem; font-size: 0.85rem; }
+  .product-card__ask {
+    width: 100%; height: auto; border-radius: var(--raio-sm); padding: 0.6rem 0.8rem;
+    font-size: 0.85rem; font-weight: 600; gap: 0.45rem;
+  }
+  .product-card__ask span { display: inline; }
+}
+
+@media (min-width: 1600px) {
+  .container { width: min(1440px, 88vw); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =====================================================================
+   ESPAÇO VIVIANE VARGAS — ajustes responsivos da identidade visual
+   ===================================================================== */
+@media (max-width: 1100px) {
+  .logo__t2 { font-size: 1.2rem; }
+  .hero__features { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 1.4rem; }
+  .hero__features li { padding-inline: 1rem; }
+  .hero__features li:nth-child(odd) { padding-left: 0; }
+  .hero__features li:nth-child(2) { border-right: none; }
+  .hero__features li { gap: 0.8rem; }
+  .hero__features .icon { width: 48px; height: 48px; }
+}
+
+@media (max-width: 980px) {
+  .hero__art { max-width: 520px; margin-inline: auto; }
+}
+
+@media (max-width: 760px) {
+  .site-header { border-radius: 0; box-shadow: none; border-bottom: 1px solid var(--cinza-100); }
+  .logo { gap: 0.55rem; }
+  .logo__mark { width: 40px; height: 40px; }
+  .logo__t1 { font-size: 0.6rem; letter-spacing: 0.26em; }
+  .logo__t2 { font-size: 1rem; letter-spacing: 0.04em; }
+  .logo__t3 { display: none; }
+  .header-action { border-color: var(--cinza-200); background: var(--branco); }
+  .search-bar__leading { color: var(--azul-700); }
+
+  /* Hero empilhado: texto em cima, foto embaixo */
+  .hero { min-height: 0; padding: 1.75rem 0 0; background: var(--branco); }
+  .hero::after { display: none; }
+  .hero__inner { display: flex; flex-direction: column; min-height: 0; gap: 1.5rem; }
+  .hero__content { width: 100%; padding-top: 0; gap: 1.1rem; }
+  .hero__eyebrow { font-size: 0.62rem; letter-spacing: 0.22em; gap: 0.6rem; padding: 0; }
+  .hero__eyebrow::before { width: 24px; }
+  .hero__title { font-size: clamp(2.2rem, 10.5vw, 3rem); letter-spacing: -0.01em; line-height: 1.05; }
+  .hero__subtitle { font-size: 0.92rem; line-height: 1.6; max-width: none; }
+  .hero__actions { display: flex; flex-wrap: wrap; width: 100%; }
+  .hero__actions a { flex: 1 1 140px; min-height: 46px; justify-content: center; font-size: 0.85rem; padding: 0.7rem 1rem; }
+  .hero__actions .btn-whatsapp-lg { background: transparent; color: var(--azul-700); box-shadow: none; }
+  .hero__art { position: relative; left: auto; bottom: auto; width: 100%; max-width: 100%; display: block; margin: 0; min-height: 0; height: auto; flex: 0 0 auto; }
+  .hero__art picture { mask-image: none; }
+  .hero__art-img { width: 100%; border-radius: 20px 20px 0 0; box-shadow: none; }
+
+  .mobile-benefits {
+    margin-top: 1rem; padding: 1.1rem 0.4rem; border-radius: 20px;
+    background: var(--branco); box-shadow: var(--sombra-md); backdrop-filter: none;
+  }
+  .mobile-benefits li:not(:last-child)::after { background: var(--cinza-200); }
+  .mobile-benefits__icon { background: transparent; color: var(--azul-700); width: 40px; height: 40px; padding: 6px; }
+  .mobile-benefits__icon svg { stroke-width: 1.4; }
+  .mobile-benefits strong { color: var(--azul-900); font-weight: 500; font-size: 0.66rem; }
+  .mobile-benefits li > div > span { text-transform: none; font-size: 0.58rem; color: var(--cinza-500); }
+
+  .section__title { font-size: 1.7rem; }
+  .category-card__icon { width: 68px; height: 68px; }
+  .promo-banner, .whatsapp-cta { border-radius: 22px; }
+  .whatsapp-cta { flex-direction: column; }
+  .newsletter__form { flex-direction: column; }
+}
+
+@media (max-width: 480px) {
+  .hero__features { grid-template-columns: 1fr; }
+  .hero__features .icon { width: 52px; height: 52px; }
+}
+
+/* ===== Desktop: foto em largura total atrás do texto (igual à referência) ===== */
+@media (min-width: 761px) {
+  .hero {
+    background: var(--branco) url("/assets/images/hero-bg.webp") right top / 100% auto no-repeat;
+    padding: 0 0 clamp(2rem, 4vw, 3.5rem);
+  }
+  .hero::after { right: -4%; bottom: -34%; width: min(21vw, 380px); z-index: 0; }
+  .hero__inner { display: block; position: relative; z-index: 1; }
+  .hero__content {
+    min-height: 32.8vw; display: grid; align-content: center; gap: 1.5rem;
+    max-width: 48%; padding-block: 2rem;
+  }
+  .hero__art { display: none; }
+  .hero__title { font-size: clamp(2rem, 4.15vw, 4.9rem); line-height: 1.07; }
+  .hero__subtitle { max-width: 37ch; font-size: clamp(1rem, 1.1vw, 1.15rem); line-height: 1.6; }
+  .hero__features { margin-top: -1.5rem; }
+}
+
+
+/* =====================================================================
+   MOBILE (até 760px) — hero em tela cheia, igual à referência: foto ocupando
+   toda a largura, texto grande à esquerda e diferenciais logo abaixo.
+   ===================================================================== */
+@media (max-width: 760px) {
+  .hero {
+    background: var(--branco) url("/assets/images/hero-mobile-full.webp") right bottom / auto 100% no-repeat;
+    min-height: 88vw; padding: 1.5rem 0 0.6rem;
+  }
+  .hero::after { display: none; }
+  .hero__inner { display: block; min-height: 0; }
+  .hero__content { width: auto; max-width: none; min-height: 0; padding: 0; display: grid; gap: 0.7rem; align-content: start; }
+  .hero__art { display: none; }
+  .hero__eyebrow { font-size: 0.56rem; letter-spacing: 0.14em; gap: 0.5rem; padding: 0; }
+  .hero__eyebrow::before { width: 24px; }
+  .hero__title { font-size: clamp(1.7rem, 7.2vw, 2.9rem); line-height: 1.04; font-weight: 600; letter-spacing: -0.015em; max-width: 64%; }
+  .hero__title em, .hero__title-accent { display: block; }
+  .hero__subtitle { font-size: 0.7rem; line-height: 1.5; max-width: 50%; color: #6b5a50; }
+  .hero__actions { display: block; width: auto; margin-top: 0.2rem; }
+  .hero__actions a { min-height: 0; width: auto; flex: none; display: inline-flex; align-items: center; gap: 0.7rem; padding: 0.55rem 1.4rem 0.55rem 1rem; font-size: 0.82rem; }
+  .hero__actions .btn-primary .icon { padding-right: 0.7rem; margin-right: 0.1rem; border-right: 1px solid rgba(255, 255, 255, 0.35); box-sizing: content-box; }
+  .hero__actions .btn-primary::after { content: "\2192"; margin-left: 0.3rem; font-size: 1rem; }
+  .hero__actions .btn-whatsapp-lg { display: none; }
+
+  .mobile-benefits {
+    grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 0.5rem; min-height: 0;
+    padding: 0.65rem 0.2rem; border-radius: 20px; background: #fbf6f2; box-shadow: 0 6px 20px rgba(74, 40, 28, 0.06);
+  }
+  .mobile-benefits li { flex-direction: column; align-items: center; justify-content: flex-start; gap: 0.25rem; padding: 0 0.25rem; text-align: center; }
+  .mobile-benefits li:not(:last-child)::after { top: 0.1rem; bottom: 0.1rem; background: var(--cinza-200); }
+  .mobile-benefits__icon { width: 34px; height: 34px; padding: 0; flex-shrink: 0; color: var(--azul-700); background: transparent; }
+  .mobile-benefits__icon svg { stroke-width: 1.4; }
+  .mobile-benefits strong { font-size: 0.72rem; line-height: 1.15; font-weight: 600; color: var(--cinza-900); overflow-wrap: anywhere; }
+  .mobile-benefits li > div > span { margin-top: 0.1rem; font-size: 0.58rem; line-height: 1.15; text-transform: none; color: var(--cinza-500); overflow-wrap: anywhere; }
+
+  .bottom-nav__item { position: relative; }
+  .bottom-nav__item.is-active::before { content: ""; position: absolute; top: -0.4rem; left: 18%; right: 18%; height: 3px; border-radius: 0 0 3px 3px; background: var(--azul-700); }
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  .hero__eyebrow { letter-spacing: 0.2em; font-size: 0.62rem; white-space: nowrap; }
+  .header-action[aria-label="Início"] span:last-child { display: none; }
+}
