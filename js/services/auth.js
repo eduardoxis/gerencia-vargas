@@ -121,10 +121,10 @@ export function atualizarNomeAuth(nome) {
   });
 }
 
-export function sair() {
+export function sair(destino = "/login.html") {
   return withLoading("sair", async () => {
     await signOut(auth);
-    window.location.href = "/index.html";
+    window.location.href = destino;
   });
 }
 

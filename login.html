@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Acesso | Espaço Viviane Vargas</title>
+  <link rel="icon" href="/assets/icons/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/portal.css">
+</head>
+<body class="portal-body">
+  <main class="portal-login">
+    <form class="portal-login__card" id="form-acesso" novalidate>
+      <div class="portal-login__brand"><span data-icon="logo"></span><strong>Espaço Viviane Vargas</strong></div>
+      <h1>Boas-vindas</h1>
+      <p>Entre para acessar o ambiente de gerenciamento.</p>
+      <label>E-mail<input type="email" name="email" autocomplete="email" required></label>
+      <label>Senha<input type="password" name="senha" autocomplete="current-password" required minlength="6"></label>
+      <label class="portal-login__check"><input type="checkbox" name="manterLogin" checked><span>Manter conectado neste dispositivo</span></label>
+      <p class="portal-login__erro" id="erro-acesso" role="alert"></p>
+      <button class="btn-primary" type="submit">Entrar</button>
+    </form>
+  </main>
+  <script type="module" src="/js/login.js"></script>
+</body>
+</html>
