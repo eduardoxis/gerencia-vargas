@@ -1,7 +1,6 @@
 {
   "rewrites": [
-    { "source": "/p/:id", "destination": "/api/p/:id" },
-    { "source": "/s/:id", "destination": "/api/s/:id" }
+    { "source": "/pages/:path*", "destination": "/" }
   ],
   "headers": [
     {

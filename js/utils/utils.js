@@ -46,13 +46,6 @@ export function imgPos(url = "", largura = 720) {
   const m = original.match(/#pos=([\d.]+),([\d.]+)$/);
   let src = original.replace(/#pos=[\d.]+,[\d.]+$/, "");
 
-  // O Cloudinary redimensiona e escolhe o formato mais leve na borda. O
-  // Firestore continua guardando só a URL original, sem criar variantes.
-  if (/^https:\/\/res\.cloudinary\.com\//.test(src) && src.includes("/image/upload/")) {
-    const larguraSegura = Math.max(64, Math.min(1600, Math.round(Number(largura) || 720)));
-    src = src.replace("/image/upload/", `/image/upload/f_auto,q_auto:eco,c_limit,w_${larguraSegura}/`);
-  }
-
   return { src, pos: m ? `${m[1]}% ${m[2]}%` : "50% 50%" };
 }
 
@@ -303,7 +296,7 @@ export function confirmarAcao(mensagem, { titulo = "Confirmar ação", textoConf
 
 export function compressImageToBase64(file, maxWidth = 800, quality = 0.7, format = "jpeg") {
   // Mantida apenas para compatibilidade com dados antigos que ainda tenham
-  // imagens em base64 no Firestore (ver migrarImagensAntigas em cloudinary.js).
+  // imagens em Base64 no Firestore.
   // Novos uploads NÃO devem usar esta função — usar converterParaWebP().
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

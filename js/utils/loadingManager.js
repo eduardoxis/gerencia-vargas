@@ -1,7 +1,7 @@
 // js/utils/loadingManager.js
 //
 // Sistema centralizado de loading, conectado ao estado real das operações
-// assíncronas da aplicação (Firestore, Auth, Cloudinary, etc).
+// assíncronas da aplicação (Firestore, Auth e recursos locais).
 //
 // Regras de segurança:
 // - Contador nunca fica negativo (Math.max(0, ...)).

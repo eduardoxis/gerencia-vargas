@@ -1,0 +1,18 @@
+/* Menu lateral: ocupa toda a janela, inclusive quando a página é rolada. */
+@media (min-width: 641px) {
+  .portal-shell { min-height: 100dvh; }
+  .portal-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 252px;
+    height: 100dvh;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 900px) {
+  .portal-sidebar { width: 78px; }
+}
+
+@media (max-width: 640px) {
+  .portal-sidebar { position: static; width: auto; height: auto; }
+}

@@ -7,7 +7,7 @@
 // "cold start": o pior caso é resetar a contagem ocasionalmente, o que é
 // aceitável pra proteção contra abuso — e custa ZERO de cota do Firestore.
 //
-// Uso: await aplicarLimite(`cloudinary:${uid}`, { maximo: 20, janelaMs: 10 * 60 * 1000 })
+// Uso: await aplicarLimite(`upload:${uid}`, { maximo: 20, janelaMs: 10 * 60 * 1000 })
 // Lança erro com status 429 se o limite for excedido.
 
 const historicoPorChave = new Map(); // chave -> number[] (timestamps)

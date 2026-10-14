@@ -1,6 +1,6 @@
 // js/services/imagem-base64.js
 // Comprime uma imagem no navegador e devolve um data URL (base64) pronto para
-// salvar direto no Firestore — sem Cloudinary e sem Firebase Storage.
+// salvar direto no Firestore, sem serviços externos de imagens.
 //
 // O Firestore limita cada documento a 1 MiB. Por isso a compressão é adaptativa:
 // reduz qualidade e, se preciso, a largura, até a imagem caber em `maxBytes`.
