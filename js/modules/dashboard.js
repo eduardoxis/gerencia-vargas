@@ -132,6 +132,11 @@ async function enviarImagemComoPNG(file, nomeBase) {
 const abasCarregadas = new Set();
 let painelBotoesLigados = false;
 
+function mostrarCarregamentoAba(container) {
+  if (!container || container.childElementCount) return;
+  container.innerHTML = `<div class="portal-carregando" role="status"><span class="portal-carregando__ponto"></span><div><strong>Carregando conteúdo</strong><p>Buscando as informações desta seção...</p></div></div>`;
+}
+
 function definirCarregadoresAba(root) {
   return {
     dashboard: () => carregarDashboard(root.querySelector("#painel-dashboard")),
@@ -208,6 +213,7 @@ export async function iniciarPainelAdmin(root) {
   const carregarAba = async aba => {
     if (abasCarregadas.has(aba)) return;
     const container = root.querySelector(`[data-tab-panel="${aba}"]`);
+    mostrarCarregamentoAba(container);
     abasCarregadas.add(aba);
     try {
       await carregadores[aba]?.();
@@ -265,8 +271,31 @@ function renderizarRankingDashboard(produtos, campo) {
   }).join("");
 }
 
+function renderizarEsqueletoDashboard(container) {
+  container.innerHTML = `
+    <div class="dashboard-shell" aria-busy="true">
+      <div class="admin-panel-head admin-panel-head--dashboard">
+        <span class="dashboard-title-icon">${icon("trendingUp")}</span>
+        <div><h1>Dashboard</h1><p>Carregando a visão geral da sua loja...</p></div>
+      </div>
+      <section class="dashboard-stat-grid" aria-label="Resumo da loja">
+        ${["Produtos", "Categorias", "Itens em estoque", "Sem estoque", "Usuários"].map(rotulo => `
+          <article class="dashboard-stat-card">
+            <div class="dashboard-stat-content"><strong>—</strong><span>${rotulo}</span><small>Carregando...</small></div>
+          </article>`).join("")}
+      </section>
+      <section class="dashboard-ranking-grid" aria-label="Destaques de produtos">
+        <article class="dashboard-card dashboard-ranking-card"><header class="dashboard-card-head"><h2>Produtos mais vistos</h2></header><p class="dashboard-ranking-empty">Carregando...</p></article>
+        <article class="dashboard-card dashboard-ranking-card"><header class="dashboard-card-head"><h2>Produtos mais compartilhados</h2></header><p class="dashboard-ranking-empty">Carregando...</p></article>
+      </section>
+    </div>`;
+}
+
 async function carregarDashboard(container) {
   if (!container) return;
+
+  // Renderiza antes da consulta ao Firestore, como no dashboard de referência.
+  renderizarEsqueletoDashboard(container);
 
   let resumo;
   try {
