@@ -137,20 +137,24 @@ function mostrarCarregamentoAba(container) {
   container.innerHTML = `<div class="portal-carregando" role="status"><span class="portal-carregando__ponto"></span><div><strong>Carregando conteúdo</strong><p>Buscando as informações desta seção...</p></div></div>`;
 }
 
+function painelDoRoot(root, aba) {
+  return root?.querySelector(`#painel-${aba}, [data-tab-panel="${aba}"]`);
+}
+
 function definirCarregadoresAba(root) {
   return {
-    dashboard: () => carregarDashboard(root.querySelector("#painel-dashboard")),
-    produtos: () => carregarAbaProdutos(root.querySelector("#painel-produtos")),
-    servicos: () => carregarAbaServicos(root.querySelector("#painel-servicos"), { abrirAjusteEnquadramento, enviarImagem }),
-    categorias: () => carregarAbaCategorias(root.querySelector("#painel-categorias")),
-    marcas: () => carregarAbaMarcas(root.querySelector("#painel-marcas")),
-    etiquetas: () => carregarAbaEtiquetas(root.querySelector("#painel-etiquetas")),
-    estoque: () => carregarAbaEstoque(root.querySelector("#painel-estoque")),
-    pedidos: () => carregarAbaPedidos(root.querySelector("#painel-pedidos")),
-    historico: () => carregarAbaHistorico(root.querySelector("#painel-historico")),
-    leads: () => carregarPainelLeads(root.querySelector("#painel-leads")),
-    usuarios: () => carregarAbaUsuarios(root.querySelector("#painel-usuarios")),
-    clientes: () => carregarAbaClientes(root.querySelector("#painel-clientes"))
+    dashboard: () => carregarDashboard(painelDoRoot(root, "dashboard")),
+    produtos: () => carregarAbaProdutos(painelDoRoot(root, "produtos")),
+    servicos: () => carregarAbaServicos(painelDoRoot(root, "servicos"), { abrirAjusteEnquadramento, enviarImagem }),
+    categorias: () => carregarAbaCategorias(painelDoRoot(root, "categorias")),
+    marcas: () => carregarAbaMarcas(painelDoRoot(root, "marcas")),
+    etiquetas: () => carregarAbaEtiquetas(painelDoRoot(root, "etiquetas")),
+    estoque: () => carregarAbaEstoque(painelDoRoot(root, "estoque")),
+    pedidos: () => carregarAbaPedidos(painelDoRoot(root, "pedidos")),
+    historico: () => carregarAbaHistorico(painelDoRoot(root, "historico")),
+    leads: () => carregarPainelLeads(painelDoRoot(root, "leads")),
+    usuarios: () => carregarAbaUsuarios(painelDoRoot(root, "usuarios")),
+    clientes: () => carregarAbaClientes(painelDoRoot(root, "clientes"))
   };
 }
 

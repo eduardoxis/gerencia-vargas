@@ -4,6 +4,26 @@ import { ICONS } from "./utils/icons.js";
 
 const app = document.querySelector("#portal-app");
 let iniciado = false;
+const ABAS_DO_PAINEL = ["dashboard", "produtos", "servicos", "categorias", "marcas", "etiquetas", "estoque", "pedidos", "historico", "usuarios", "clientes", "leads"];
+
+// Algumas versões antigas do HTML do painel não traziam todos os containers
+// das abas. No desktop isso deixava a navegação visível, mas sem área para
+// inserir o conteúdo. A estrutura é garantida antes de qualquer carregamento.
+function garantirEstruturaPaineis() {
+  const area = app?.querySelector(".tabs-content");
+  if (!area) return;
+
+  ABAS_DO_PAINEL.forEach((aba, indice) => {
+    let painel = area.querySelector(`#painel-${aba}, [data-tab-panel="${aba}"]`);
+    if (!painel) {
+      painel = document.createElement("div");
+      area.appendChild(painel);
+    }
+    painel.id = `painel-${aba}`;
+    painel.dataset.tabPanel = aba;
+    painel.hidden = indice !== 0;
+  });
+}
 
 function painelDaAba(aba) {
   return app?.querySelector(`[data-tab-panel="${aba}"]`);
@@ -63,6 +83,7 @@ function ligarNavegacao() {
 }
 
 async function mostrarPortal(usuario) {
+  garantirEstruturaPaineis();
   app.hidden = false;
   preencherDadosUsuario(usuario);
 
@@ -81,6 +102,7 @@ ouvirEstadoAuth(async (usuario, _perfil, erroPerfil) => {
     return;
   }
   if (erroPerfil) {
+    garantirEstruturaPaineis();
     app.hidden = false;
     preencherDadosUsuario(usuario);
     const painel = painelDaAba("dashboard");
