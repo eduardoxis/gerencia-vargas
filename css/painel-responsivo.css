@@ -1,0 +1,12 @@
+/* Proteção visual para qualquer tamanho de tela. */
+.portal-load-error { display: grid; place-items: start; gap: .65rem; max-width: 500px; margin: 2rem auto; padding: 1.5rem; border: 1px solid #eadbd4; border-radius: 14px; background: #fff; color: #3c2821; }
+.portal-load-error p { margin: 0; color: #78665c; }
+
+@media (max-width: 640px) {
+  .portal-main .tabs-content { width: 100%; box-sizing: border-box; }
+  .portal-main .admin-panel-head { gap: .8rem; }
+  .portal-main .admin-panel-head--row, .portal-main .admin-panel-head__actions { flex-wrap: wrap; }
+  .portal-main .admin-panel-head__actions > * { flex: 1 1 160px; }
+  .portal-main .inline-form, .portal-main .estoque-filtros { padding: .8rem; }
+  .portal-main .table-wrap { border-radius: 10px; }
+}

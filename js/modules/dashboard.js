@@ -205,29 +205,32 @@ export function invalidarAbaPainel(nomeAba) {
 
 export async function iniciarPainelAdmin(root) {
   const carregadores = definirCarregadoresAba(root);
+  const carregarAba = async aba => {
+    if (abasCarregadas.has(aba)) return;
+    const container = root.querySelector(`[data-tab-panel="${aba}"]`);
+    abasCarregadas.add(aba);
+    try {
+      await carregadores[aba]?.();
+    } catch (erro) {
+      abasCarregadas.delete(aba);
+      console.error(`[painel] falha ao carregar aba "${aba}":`, erro);
+      if (!container) return;
+      container.innerHTML = `<div class="portal-load-error"><strong>Não foi possível carregar esta seção.</strong><p>Confira sua conexão e tente novamente.</p><button type="button" class="btn-primary" data-tentar-aba="${aba}">Tentar novamente</button></div>`;
+      container.querySelector("[data-tentar-aba]")?.addEventListener("click", () => carregarAba(aba));
+    }
+  };
 
-  // Sempre garante a aba ativa no momento (padrão: dashboard) carregada.
-  const abaAtiva = root.querySelector("[data-tab-trigger].is-active")?.dataset.tabTrigger || "dashboard";
-  if (!abasCarregadas.has(abaAtiva)) {
-    abasCarregadas.add(abaAtiva);
-    await carregadores[abaAtiva]?.();
+  // Liga os botões antes da primeira leitura: uma falha no Dashboard nunca
+  // impede a abertura de Produtos, Marcas ou qualquer outra seção.
+  if (!painelBotoesLigados) {
+    painelBotoesLigados = true;
+    root.querySelectorAll("[data-tab-trigger]").forEach(botao => {
+      botao.addEventListener("click", () => carregarAba(botao.dataset.tabTrigger));
+    });
   }
 
-  if (painelBotoesLigados) return;
-  painelBotoesLigados = true;
-  root.querySelectorAll("[data-tab-trigger]").forEach(botao => {
-    botao.addEventListener("click", async () => {
-      const aba = botao.dataset.tabTrigger;
-      if (abasCarregadas.has(aba)) return;
-      abasCarregadas.add(aba);
-      try {
-        await carregadores[aba]?.();
-      } catch (erro) {
-        abasCarregadas.delete(aba); // deixa tentar de novo se falhar
-        console.error(`[painel] falha ao carregar aba "${aba}":`, erro);
-      }
-    });
-  });
+  const abaAtiva = root.querySelector("[data-tab-trigger].is-active")?.dataset.tabTrigger || "dashboard";
+  await carregarAba(abaAtiva);
 }
 
 // ---------- DASHBOARD ----------
