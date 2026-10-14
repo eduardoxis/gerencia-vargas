@@ -35,6 +35,7 @@ export function ouvirEstadoAuth(callback) {
   const finalizarPrimeiroEstado = beginListener("ouvirEstadoAuth");
   onAuthStateChanged(auth, async (user) => {
     usuarioAtual = user;
+    let erroPerfil = null;
     try {
       if (user) {
         // A permissão real continua nas regras do Firestore. Este cache só
@@ -54,7 +55,18 @@ export function ouvirEstadoAuth(callback) {
       } else {
         perfilAtual = null;
       }
-      callback(usuarioAtual, perfilAtual);
+    } catch (erro) {
+      // Sem este tratamento, uma regra do Firestore ausente deixava o portal
+      // renderizado sem conteúdo porque o callback nunca era executado.
+      console.error("Não foi possível carregar o perfil do usuário:", erro);
+      perfilAtual = null;
+      erroPerfil = erro;
+    }
+
+    try {
+      await callback(usuarioAtual, perfilAtual, erroPerfil);
+    } catch (erro) {
+      console.error("Falha ao processar o estado de autenticação:", erro);
     } finally {
       finalizarPrimeiroEstado();
     }

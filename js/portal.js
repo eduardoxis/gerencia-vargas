@@ -27,6 +27,13 @@ function atualizarCabecalho(botao) {
   document.querySelector("#portal-titulo").textContent = titulo;
 }
 
+function preencherDadosUsuario(usuario) {
+  const nome = usuario?.displayName || usuario?.email || "";
+  document.querySelector("#portal-usuario").textContent = nome;
+  document.querySelector("#portal-usuario-lateral").textContent = nome;
+  document.querySelector("#portal-iniciais").textContent = nome.trim().charAt(0).toUpperCase() || "V";
+}
+
 function preencherIcones() {
   document.querySelectorAll("[data-icon]").forEach(el => {
     const nome = el.dataset.icon;
@@ -56,11 +63,8 @@ function ligarNavegacao() {
 }
 
 async function mostrarPortal(usuario) {
-  const nome = usuario.displayName || usuario.email || "";
   app.hidden = false;
-  document.querySelector("#portal-usuario").textContent = nome;
-  document.querySelector("#portal-usuario-lateral").textContent = nome;
-  document.querySelector("#portal-iniciais").textContent = nome.trim().charAt(0).toUpperCase() || "V";
+  preencherDadosUsuario(usuario);
 
   if (iniciado) return;
   iniciado = true;
@@ -71,9 +75,18 @@ async function mostrarPortal(usuario) {
 
 preencherIcones();
 
-ouvirEstadoAuth(async usuario => {
+ouvirEstadoAuth(async (usuario, _perfil, erroPerfil) => {
   if (!usuario) {
     window.location.replace("/login.html");
+    return;
+  }
+  if (erroPerfil) {
+    app.hidden = false;
+    preencherDadosUsuario(usuario);
+    const painel = painelDaAba("dashboard");
+    if (painel) {
+      painel.innerHTML = `<div class="portal-load-error"><strong>Não foi possível validar o acesso ao painel.</strong><p>O perfil administrativo não pôde ser lido no Firebase. Publique as regras do Firestore incluídas neste projeto e atualize a página.</p></div>`;
+    }
     return;
   }
   if (!ehAdmin()) {

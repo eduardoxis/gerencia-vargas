@@ -1,109 +1,131 @@
 rules_version = '2';
 
-// Deploy com: firebase deploy --only firestore:rules
-// Isto é o que REALMENTE protege o sistema — não a "api key" do firebase-config.js.
-
+// Publique com: firebase deploy --only firestore:rules
+// As regras protegem os dados; o JavaScript apenas controla a interface.
 service cloud.firestore {
   match /databases/{database}/documents {
-
     function autenticado() {
       return request.auth != null;
     }
 
     function ehAdmin() {
-      return autenticado() &&
-        exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.cargos.hasAny(['admin']);
+      return autenticado()
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
+        && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.cargos.hasAny(['admin']);
     }
 
-    // ---------- PRODUTOS ----------
-    // Leitura pública (é um catálogo), mas produtos "ocultos" só o admin lista/edita.
-    // A filtragem de "oculto" na home já é feita no client, mas a regra abaixo
-    // impede que alguém leia o documento cru de um produto oculto por engenharia reversa.
+    // Catálogo público; itens ocultos continuam exclusivos do administrador.
     match /produtos/{produtoId} {
       allow get: if resource.data.status != 'oculto' || ehAdmin();
-      // Consultas públicas precisam filtrar por um status visível; assim um
-      // produto oculto não é exposto apenas por manipular o front-end.
       allow list: if resource.data.status in ['disponivel', 'sem_estoque', 'esgotado'] || ehAdmin();
       allow create, update, delete: if ehAdmin();
     }
 
-    // ---------- CUSTOS DOS PRODUTOS ----------
-    // Custo, gastos, impostos e taxas (base da margem de lucro). Ficam fora de
-    // "produtos" de propósito: aquela coleção é pública. Aqui só o admin lê/escreve.
     match /custosProdutos/{produtoId} {
       allow read, write: if ehAdmin();
     }
 
-    // ---------- CATEGORIAS / ETIQUETAS ----------
     match /categorias/{id} {
       allow read: if true;
       allow write: if ehAdmin();
     }
+
     match /etiquetas/{id} {
       allow read: if true;
       allow write: if ehAdmin();
     }
+
     match /marcas/{id} {
       allow read: if true;
       allow write: if ehAdmin();
     }
-    // ---------- SERVIÇOS DO SALÃO ----------
-    // Categorias/subcategorias são públicas (viram os cards do site). Serviços
-    // "ocultos" só o admin lê, igual aos produtos.
+
     match /categoriasServico/{id} {
       allow read: if true;
       allow write: if ehAdmin();
     }
+
     match /servicos/{servicoId} {
       allow get: if resource.data.status != 'oculto' || ehAdmin();
       allow list: if resource.data.status == 'disponivel' || ehAdmin();
       allow create, update, delete: if ehAdmin();
     }
 
-    // Sinal leve de alteração pública. Não contém dados do catálogo.
+    // Documento usado para avisar a vitrine sobre mudanças no catálogo.
     match /publicacoes/{id} {
       allow get: if true;
       allow list: if false;
       allow write: if ehAdmin();
     }
+
+    // A leitura do próprio perfil é essencial para saber se a conta é admin.
+    match /usuarios/{uid} {
+      allow get: if autenticado() && (request.auth.uid == uid || ehAdmin());
+      allow list: if ehAdmin();
+      allow create: if autenticado()
+        && request.auth.uid == uid
+        && request.resource.data.cargos == ['cliente'];
+      allow update: if ehAdmin() || (
+        autenticado()
+        && request.auth.uid == uid
+        && request.resource.data.cargos == resource.data.cargos
+        && request.resource.data.email == resource.data.email
+      );
+      allow delete: if ehAdmin();
+    }
+
     match /clientes/{id} {
       allow read, write: if ehAdmin();
     }
 
-    // ---------- PEDIDOS ----------
-    // Cliente cria e lê apenas os próprios pedidos; admin lê/edita tudo.
-    // A validação abaixo impede que alguém escreva direto pelo SDK do
-    // cliente um pedido com campos faltando, tipos errados, total negativo
-    // ou um total que não bate com a soma dos itens.
+    // Um cliente só acessa os próprios pedidos; o administrador acessa todos.
     match /pedidos/{id} {
-      allow create: if autenticado() &&
-        request.resource.data.usuarioId == request.auth.uid &&
-        request.resource.data.keys().hasAll(['usuarioId', 'itens', 'total', 'criadoEm']) &&
-        request.resource.data.itens is list && request.resource.data.itens.size() > 0 &&
-        request.resource.data.itens.size() <= 100 &&
-        request.resource.data.total is number && request.resource.data.total >= 0 &&
-        (!('status' in request.resource.data) || request.resource.data.status == 'pendente');
+      allow create: if autenticado()
+        && request.resource.data.usuarioId == request.auth.uid
+        && request.resource.data.keys().hasAll(['usuarioId', 'itens', 'total', 'criadoEm'])
+        && request.resource.data.itens is list
+        && request.resource.data.itens.size() > 0
+        && request.resource.data.itens.size() <= 100
+        && request.resource.data.total is number
+        && request.resource.data.total >= 0
+        && (!('status' in request.resource.data) || request.resource.data.status == 'pendente');
       allow read: if autenticado() && (resource.data.usuarioId == request.auth.uid || ehAdmin());
-      // O cliente pode remover apenas documentos que pertencem à própria conta.
-      // Alterações continuam exclusivas do painel administrativo.
       allow update: if ehAdmin();
       allow delete: if autenticado() && (resource.data.usuarioId == request.auth.uid || ehAdmin());
     }
 
-    // Carrinho e favoritos pertencem à conta: qualquer dispositivo com a
-    // mesma sessão autenticada vê e atualiza o mesmo documento.
-    match /carrinhos/{uid} {
-      allow read: if autenticado() && request.auth.uid == uid;
-      allow write: if autenticado() && request.auth.uid == uid &&
-        request.resource.data.keys().hasOnly(['itens', 'atualizadoEm']) &&
-        request.resource.data.itens is list && request.resource.data.itens.size() <= 100;
-    }
-    match /favoritos/{uid} {
-      allow read: if autenticado() && request.auth.uid == uid;
-      allow write: if autenticado() && request.auth.uid == uid &&
-        request.resource.data.keys().hasOnly(['itens', 'atualizadoEm']) &&
-        request.resource.data.itens is list && request.resource.data.itens.size() <= 500;
+    match /enderecos/{id} {
+      allow create: if autenticado() && request.resource.data.usuarioId == request.auth.uid;
+      allow read, update, delete: if autenticado()
+        && (resource.data.usuarioId == request.auth.uid || ehAdmin());
     }
 
-    // ---------- ENDEREÇOS
+    match /carrinhos/{uid} {
+      allow read, write: if autenticado() && request.auth.uid == uid;
+    }
+
+    match /favoritos/{uid} {
+      allow read, write: if autenticado() && request.auth.uid == uid;
+    }
+
+    match /historicoEstoque/{id} {
+      allow read, write: if ehAdmin();
+    }
+
+    match /leadsPerdidos/{id} {
+      allow read, update, delete: if ehAdmin();
+      // Criação é feita pela API com Admin SDK, que não depende desta regra.
+      allow create: if false;
+    }
+
+    match /alertasEstoque/{id} {
+      allow read: if ehAdmin();
+      allow write: if false;
+    }
+
+    match /logsErros/{id} {
+      allow create: if autenticado();
+      allow read, update, delete: if ehAdmin();
+    }
+  }
+}
