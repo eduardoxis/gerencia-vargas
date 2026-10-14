@@ -1,7 +1,10 @@
 /* Menu lateral fixo, sem barra de rolagem visível. */
 @media (min-width: 641px) {
   .portal-shell { min-height: 100dvh; }
-  .portal-sidebar { position: fixed; inset: 0 auto 0 0; width: 252px; height: 100dvh; }
+  /* O menu precisa continuar como item do grid. Com position: fixed ele sai
+     do grid e o conteúdo principal é colocado atrás dele — por isso o
+     desktop mostrava só a barra lateral enquanto o celular funcionava. */
+  .portal-sidebar { position: sticky; top: 0; width: 252px; height: 100dvh; }
   .portal-sidebar .tabs-nav { overflow: hidden; padding-block: .62rem; }
   .portal-sidebar .tabs-nav__list { gap: 0; }
   .portal-sidebar .tabs-nav button { min-height: 38px; padding-block: .5rem; }
