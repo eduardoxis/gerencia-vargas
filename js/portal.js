@@ -1,10 +1,11 @@
 import { sair, ouvirEstadoAuth, ehAdmin } from "./services/auth.js";
 import { trocarAba } from "./utils/modal.js";
 import { ICONS } from "./utils/icons.js";
+import { iniciarBuscaGlobal } from "./modules/analises-admin.js";
 
 const app = document.querySelector("#portal-app");
 let iniciado = false;
-const ABAS_DO_PAINEL = ["dashboard", "produtos", "servicos", "categorias", "marcas", "etiquetas", "estoque", "pedidos", "historico", "usuarios", "clientes", "leads", "notificacoes", "catalogo-pdf", "backup"];
+const ABAS_DO_PAINEL = ["dashboard", "analises", "produtos", "servicos", "categorias", "marcas", "etiquetas", "estoque", "pedidos", "historico", "usuarios", "clientes", "leads", "notificacoes", "catalogo-pdf", "backup"];
 
 // Algumas versões antigas do HTML do painel não traziam todos os containers
 // das abas. No desktop isso deixava a navegação visível, mas sem área para
@@ -23,6 +24,25 @@ function garantirEstruturaPaineis() {
     painel.dataset.tabPanel = aba;
     painel.hidden = indice !== 0;
   });
+}
+
+function adicionarFerramentasDoPortal() {
+  const lista = app?.querySelector(".tabs-nav__list");
+  if (lista && !lista.querySelector('[data-tab-trigger="analises"]')) {
+    const botao = document.createElement("button");
+    botao.dataset.tabTrigger = "analises";
+    botao.innerHTML = `<span class="nav-icon" data-icon="trendingUp"></span><span class="nav-label">Análises</span>`;
+    lista.insertBefore(botao, lista.querySelector('[data-tab-trigger="produtos"]'));
+  }
+  const topbar = app?.querySelector(".portal-topbar");
+  if (topbar && !topbar.querySelector("#form-busca-global")) {
+    const form = document.createElement("form");
+    form.className = "portal-global-search";
+    form.id = "form-busca-global";
+    form.innerHTML = `<span data-icon="search"></span><input id="busca-global" type="search" placeholder="Buscar produto, cliente, pedido ou contato" autocomplete="off"><div id="resultados-busca-global" hidden></div>`;
+    topbar.insertBefore(form, topbar.querySelector("#portal-usuario"));
+  }
+  preencherIcones();
 }
 
 function painelDaAba(aba) {
@@ -84,6 +104,7 @@ function ligarNavegacao() {
 
 async function mostrarPortal(usuario) {
   garantirEstruturaPaineis();
+  adicionarFerramentasDoPortal();
   app.hidden = false;
   preencherDadosUsuario(usuario);
 
@@ -91,6 +112,7 @@ async function mostrarPortal(usuario) {
   iniciado = true;
   mostrarCarregamento();
   ligarNavegacao();
+  iniciarBuscaGlobal(app);
   await iniciarConteudo();
 }
 

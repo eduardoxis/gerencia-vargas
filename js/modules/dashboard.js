@@ -14,6 +14,7 @@ import { comprimirParaBase64 } from "../services/imagem-base64.js";
 import { calcularMargem, formatarPct, ROTULO_NIVEL_MARGEM } from "../utils/margem.js";
 import { carregarPainelLeads } from "../modules/leads.js";
 import { carregarAbaBackup, carregarAbaCatalogoPdf, carregarAbaNotificacoes } from "./ferramentas-admin.js";
+import { carregarAbaAnalises } from "./analises-admin.js";
 import { ICONS, icon } from "../utils/icons.js";
 import { auth } from "../../firebase/firebase-config.js";
 import { carregarAbaServicos } from "./servicos-admin.js";
@@ -145,6 +146,7 @@ function painelDoRoot(root, aba) {
 function definirCarregadoresAba(root) {
   return {
     dashboard: () => carregarDashboard(painelDoRoot(root, "dashboard")),
+    analises: () => carregarAbaAnalises(painelDoRoot(root, "analises")),
     produtos: () => carregarAbaProdutos(painelDoRoot(root, "produtos")),
     servicos: () => carregarAbaServicos(painelDoRoot(root, "servicos"), { abrirAjusteEnquadramento, enviarImagem }),
     categorias: () => carregarAbaCategorias(painelDoRoot(root, "categorias")),
