@@ -1,5 +1,5 @@
 // js/services/firestore.js
-import { db } from "../../firebase/firebase-config.js";
+import { auth, db } from "../../firebase/firebase-config.js";
 import {
   collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, setDoc,
   query, where, orderBy, limit, startAfter, serverTimestamp, increment,
@@ -617,6 +617,29 @@ async function notificarMudancaPublica() {
   }
 }
 
+function camposAuditaveis(dados = {}) {
+  return Object.fromEntries(Object.entries(dados).filter(([campo]) =>
+    ["nome", "preco", "status", "quantidade"].includes(campo)
+  ));
+}
+
+// Auditoria para as ações normais do painel. A regra também impede alterar
+// ou apagar um registro já criado, preservando o histórico para consulta.
+async function registrarAuditoria(acao, entidade, entidadeId, antes = {}, depois = {}) {
+  const usuarioId = auth.currentUser?.uid;
+  if (!usuarioId) return;
+  try {
+    await addDoc(collection(db, "auditoria"), {
+      usuarioId, acao, entidade, entidadeId,
+      antes: camposAuditaveis(antes),
+      depois: camposAuditaveis(depois),
+      criadoEm: serverTimestamp()
+    });
+  } catch (erro) {
+    console.error("Não foi possível registrar a auditoria ადმინისტrativa:", erro);
+  }
+}
+
 export function criarProduto(dados) {
   return withLoading("criarProduto", async () => {
     const resultado = await addDoc(collection(db, "produtos"), {
@@ -648,13 +671,15 @@ export function atualizarProduto(id, dados) {
     const precisaRecalcular = "preco" in dados || "status" in dados || "quantidade" in dados;
     const precisaAtualizarBusca = ["nome", "marca", "categoria", "codigo"].some(campo => campo in dados);
     if (!precisaRecalcular && !precisaAtualizarBusca) {
+      const antes = (await getDoc(ref)).data() || {};
       const resultado = await updateDoc(ref, dados);
+      await registrarAuditoria("atualizacao", "produto", id, antes, { ...antes, ...dados });
       invalidarCacheVitrinesHome();
       await notificarMudancaPublica();
       return resultado;
     }
 
-    const resultado = await runTransaction(db, async (tx) => {
+    const antes = await runTransaction(db, async (tx) => {
       const snap = await tx.get(ref);
       const atual = snap.exists() ? snap.data() : {};
       const preco = "preco" in dados ? dados.preco : atual.preco;
@@ -670,7 +695,9 @@ export function atualizarProduto(id, dados) {
           buscaTokens: criarTokensBusca({ ...atual, ...dados })
         } : {})
       });
+      return atual;
     });
+    await registrarAuditoria("atualizacao", "produto", id, antes, { ...antes, ...dados });
     invalidarCacheVitrinesHome();
     await notificarMudancaPublica();
     return resultado;
@@ -777,7 +804,7 @@ export function incrementarCompartilhamento(id) {
 export function ajustarEstoque(id, delta, motivo = "") {
   return withLoading("ajustarEstoque", async () => {
     const ref = doc(db, "produtos", id);
-    await runTransaction(db, async (tx) => {
+    const antes = await runTransaction(db, async (tx) => {
       const snap = await tx.get(ref);
       const atual = snap.data() || {};
       const novaQuantidade = (Number(atual.quantidade) || 0) + delta;
@@ -785,12 +812,16 @@ export function ajustarEstoque(id, delta, motivo = "") {
         quantidade: novaQuantidade,
         disponivel: calcularDisponivel(atual.status, novaQuantidade)
       });
+      return atual;
     });
     await addDoc(collection(db, "historicoEstoque"), {
       produtoId: id,
       delta,
       motivo,
       data: serverTimestamp()
+    });
+    await registrarAuditoria("ajuste_estoque", "produto", id, antes, {
+      ...antes, quantidade: (Number(antes.quantidade) || 0) + delta
     });
     invalidarCache("resumoDashboard");
     invalidarCache("catalogoBase");
@@ -1133,10 +1164,22 @@ export function marcarLeadRecuperado(id) {
 // ---------- PEDIDOS ----------
 export function criarPedido(dados) {
   return withLoading("criarPedido", async () => {
-    const resultado = await addDoc(collection(db, "pedidos"), { ...dados, status: "pendente", criadoEm: serverTimestamp() });
+    const usuario = auth.currentUser;
+    if (!usuario) throw new Error("Entre na sua conta para registrar o pedido.");
+    const token = await usuario.getIdToken();
+    const resposta = await fetch("/api/criar-pedido", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        nomeCliente: dados?.nomeCliente || "",
+        itens: (dados?.itens || []).map((item) => ({ id: item.id, quantidade: item.quantidade, cor: item.cor || "" }))
+      })
+    });
+    const corpo = await resposta.json().catch(() => ({}));
+    if (!resposta.ok) throw new Error(corpo.erro || "Não foi possível registrar o pedido.");
     invalidarCache("listarPedidosUsuario");
     invalidarCache("listarPedidosAdmin");
-    return resultado;
+    return corpo;
   });
 }
 export const listarPedidosUsuario = comCache("listarPedidosUsuario", 60 * 1000, (usuarioId) =>
@@ -1187,7 +1230,10 @@ export function excluirPedidos(ids = []) {
 }
 export function atualizarStatusPedido(id, status) {
   return withLoading("atualizarStatusPedido", async () => {
-    const resultado = await updateDoc(doc(db, "pedidos", id), { status });
+    const ref = doc(db, "pedidos", id);
+    const antes = (await getDoc(ref)).data() || {};
+    const resultado = await updateDoc(ref, { status });
+    await registrarAuditoria("atualizacao_status", "pedido", id, { status: antes.status }, { status });
     atualizarCacheLista("listarPedidosAdmin", lista => lista.map(item => item.id === id ? { ...item, status } : item), 45 * 1000);
     invalidarCache("listarPedidosUsuario");
     return resultado;

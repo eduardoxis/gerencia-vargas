@@ -64,12 +64,20 @@ service cloud.firestore {
       allow list: if ehAdmin();
       allow create: if autenticado()
         && request.auth.uid == uid
-        && request.resource.data.cargos == ['cliente'];
+        && request.resource.data.cargos == ['cliente']
+        && request.resource.data.keys().hasOnly([
+          'email', 'cargos', 'criadoEm', 'tipoConta', 'nome', 'cpf',
+          'razaoSocial', 'cnpj', 'responsavel', 'telefone'
+        ]);
       allow update: if ehAdmin() || (
         autenticado()
         && request.auth.uid == uid
         && request.resource.data.cargos == resource.data.cargos
         && request.resource.data.email == resource.data.email
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'nome', 'telefone', 'dataNascimento', 'formaPagamentoPreferida',
+          'notificacoesPromocoes'
+        ])
       );
       allow delete: if ehAdmin();
     }
@@ -80,24 +88,30 @@ service cloud.firestore {
 
     // Um cliente só acessa os próprios pedidos; o administrador acessa todos.
     match /pedidos/{id} {
-      allow create: if autenticado()
-        && request.resource.data.usuarioId == request.auth.uid
-        && request.resource.data.keys().hasAll(['usuarioId', 'itens', 'total', 'criadoEm'])
-        && request.resource.data.itens is list
-        && request.resource.data.itens.size() > 0
-        && request.resource.data.itens.size() <= 100
-        && request.resource.data.total is number
-        && request.resource.data.total >= 0
-        && (!('status' in request.resource.data) || request.resource.data.status == 'pendente');
+      // Pedidos são criados exclusivamente pela API /api/criar-pedido.
+      // Ela confere produto, preço e disponibilidade com Admin SDK antes de gravar.
+      allow create: if false;
       allow read: if autenticado() && (resource.data.usuarioId == request.auth.uid || ehAdmin());
       allow update: if ehAdmin();
       allow delete: if autenticado() && (resource.data.usuarioId == request.auth.uid || ehAdmin());
     }
 
     match /enderecos/{id} {
-      allow create: if autenticado() && request.resource.data.usuarioId == request.auth.uid;
-      allow read, update, delete: if autenticado()
+      allow create: if autenticado()
+        && request.resource.data.usuarioId == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'usuarioId', 'apelido', 'rua', 'numero', 'bairro', 'cidade', 'cep', 'criadoEm'
+        ]);
+      allow read, delete: if autenticado()
         && (resource.data.usuarioId == request.auth.uid || ehAdmin());
+      allow update: if ehAdmin() || (
+        autenticado()
+        && resource.data.usuarioId == request.auth.uid
+        && request.resource.data.usuarioId == resource.data.usuarioId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'apelido', 'rua', 'numero', 'bairro', 'cidade', 'cep'
+        ])
+      );
     }
 
     match /carrinhos/{uid} {
@@ -110,6 +124,18 @@ service cloud.firestore {
 
     match /historicoEstoque/{id} {
       allow read, write: if ehAdmin();
+    }
+
+    // Registro somente de acréscimo das ações administrativas relevantes.
+    // O responsável é vinculado ao UID autenticado, não a um valor do formulário.
+    match /auditoria/{id} {
+      allow read: if ehAdmin();
+      allow create: if ehAdmin()
+        && request.resource.data.usuarioId == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'usuarioId', 'acao', 'entidade', 'entidadeId', 'antes', 'depois', 'criadoEm'
+        ]);
+      allow update, delete: if false;
     }
 
     match /leadsPerdidos/{id} {

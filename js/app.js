@@ -577,12 +577,9 @@ function configurarCarrinhoUI() {
       ? ((nome && !pareceEmail(nome)) ? nome : nomeDoPerfil)
       : (nome && !pareceEmail(nome) ? nome : "");
     if (usuarioAtual) {
-      const { total } = calcularTotais(carrinho);
       criarPedido({
-        usuarioId: usuarioAtual.uid,
         nomeCliente: nomeParaPedido,
-        itens: carrinho.map(i => ({ id: i.id, nome: i.nome, quantidade: i.quantidade, preco: i.preco, cor: i.cor || "" })),
-        total
+        itens: carrinho.map(i => ({ id: i.id, quantidade: i.quantidade, cor: i.cor || "" }))
       }).catch((erro) => {
         toast("Pedido não foi salvo no seu histórico, mas o WhatsApp vai abrir normalmente.", "error");
         registrarErroCliente("checkout-criarPedido", erro, { usuarioId: usuarioAtual.uid });

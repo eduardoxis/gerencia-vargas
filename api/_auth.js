@@ -14,7 +14,7 @@ import { obterDbAdmin } from "./_firebaseAdmin.js";
 const TTL_CACHE_CARGO_MS = 60 * 1000;
 const cacheCargo = new Map(); // uid -> { ehAdmin, expiraEm }
 
-export async function exigirAdmin(req) {
+export async function exigirUsuario(req) {
   const cabecalho = req.headers.authorization || "";
   const token = cabecalho.startsWith("Bearer ") ? cabecalho.slice(7) : null;
   if (!token) {
@@ -25,7 +25,8 @@ export async function exigirAdmin(req) {
 
   let decodificado;
   try {
-    decodificado = await getAuth().verifyIdToken(token);
+    // Também recusa tokens que tenham sido revogados no Firebase.
+    decodificado = await getAuth().verifyIdToken(token, true);
   } catch (causa) {
     // Loga o motivo real (ex: auth/argument-error, "incorrect aud" = projeto
     // do Firebase Admin diferente do projeto do site) nos logs da Vercel.
@@ -35,7 +36,11 @@ export async function exigirAdmin(req) {
     throw erro;
   }
 
-  const uid = decodificado.uid;
+  return decodificado.uid;
+}
+
+export async function exigirAdmin(req) {
+  const uid = await exigirUsuario(req);
   const emCache = cacheCargo.get(uid);
   let ehAdmin;
 
