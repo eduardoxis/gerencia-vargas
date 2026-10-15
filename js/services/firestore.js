@@ -171,7 +171,7 @@ function normalizarTermoBusca(valor) {
 }
 
 function criarTokensBusca(dados = {}) {
-  const campos = [dados.nome, dados.marca, dados.categoria, dados.codigo];
+  const campos = [dados.nome, dados.marca, dados.categoria, dados.codigo, dados.codigoBarras];
   const tokens = new Set();
   campos.forEach(campo => {
     const palavras = normalizarTermoBusca(campo).split(/[^a-z0-9]+/).filter(Boolean);
@@ -187,7 +187,7 @@ function criarTokensBusca(dados = {}) {
 function produtoCombinaComBusca(produto, termo) {
   const palavras = normalizarTermoBusca(termo).split(/\s+/).filter(Boolean);
   if (!palavras.length) return true;
-  const texto = [produto.nome, produto.marca, produto.categoria, produto.codigo]
+  const texto = [produto.nome, produto.marca, produto.categoria, produto.codigo, produto.codigoBarras]
     .map(normalizarTermoBusca).join(" ");
   return palavras.every(palavra => texto.split(/[^a-z0-9]+/).some(item => item.startsWith(palavra)));
 }
@@ -302,12 +302,15 @@ function buscarProdutosPorPrefixoNoServidor(termo, { tamanho = 20, cursor = null
 
     // Código é uma identificação exata: tentamos este caminho primeiro para
     // devolver o produto certo com o menor número de documentos lidos.
-    const porCodigo = cursor ? null : await getDocs(query(
-      col, where("codigo", "==", termoOriginal), limit(1)
-    ));
-    const encontradosPorCodigo = (porCodigo?.docs || [])
-      .map(docProduto => ({ id: docProduto.id, ...docProduto.data() }))
-      .filter(produto => normalizarTermoBusca(produto.codigo) === termoLimpo)
+    const [porCodigo, porCodigoBarras] = cursor ? [null, null] : await Promise.all([
+      getDocs(query(col, where("codigo", "==", termoOriginal), limit(1))),
+      getDocs(query(col, where("codigoBarras", "==", termoOriginal.replace(/\D/g, "")), limit(1)))
+    ]);
+    const exatos = new Map();
+    [...(porCodigo?.docs || []), ...(porCodigoBarras?.docs || [])]
+      .forEach(docProduto => exatos.set(docProduto.id, { id: docProduto.id, ...docProduto.data() }));
+    const encontradosPorCodigo = [...exatos.values()]
+      .filter(produto => normalizarTermoBusca(produto.codigo) === termoLimpo || normalizarTermoBusca(produto.codigoBarras) === termoLimpo)
       .filter(produto => !semFoto || !produtoTemFotoCadastrada(produto));
     if (encontradosPorCodigo.length) {
       return { produtos: encontradosPorCodigo.slice(0, tamanho), cursor: null, temMais: false };
@@ -669,7 +672,7 @@ export function atualizarProduto(id, dados) {
   return withLoading("atualizarProduto", async () => {
     const ref = doc(db, "produtos", id);
     const precisaRecalcular = "preco" in dados || "status" in dados || "quantidade" in dados;
-    const precisaAtualizarBusca = ["nome", "marca", "categoria", "codigo"].some(campo => campo in dados);
+    const precisaAtualizarBusca = ["nome", "marca", "categoria", "codigo", "codigoBarras"].some(campo => campo in dados);
     if (!precisaRecalcular && !precisaAtualizarBusca) {
       const antes = (await getDoc(ref)).data() || {};
       const resultado = await updateDoc(ref, dados);

@@ -728,6 +728,10 @@ dialog.dialog-form::backdrop { background: rgba(43, 20, 16, 0.45); backdrop-filt
 .product-form { display: grid; gap: 1.1rem; }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem 1.25rem; }
 .product-form label { display: grid; gap: 0.35rem; font-size: 0.85rem; color: var(--cinza-700); min-width: 0; }
+.product-form .barcode-field > small { color: var(--cinza-500); font-size: .72rem; font-weight: 400; }
+.product-form .barcode-field > span { display: flex; gap: .45rem; }
+.product-form .barcode-field input { min-width: 0; }
+.product-form .barcode-field button { flex: 0 0 auto; padding-inline: .7rem; font-size: .78rem; }
 .product-form input, .product-form select, .product-form textarea {
   width: 100%; max-width: 100%; box-sizing: border-box;
   padding: 0.6rem 0.8rem; border: 1px solid var(--cinza-300); border-radius: var(--raio-sm);

@@ -26,6 +26,18 @@ let cacheEtiquetas = [];
 // Usado só para mostrar a margem na tabela; é atualizado ao salvar/excluir.
 const cacheCustos = new Map();
 
+function gerarCodigoBarras() {
+  // Prefixo 200 identifica código interno da loja. O último dígito é o
+  // verificador EAN-13, então leitores de código de barras reconhecem o valor.
+  const base = `200${String(Math.floor(Math.random() * 1_000_000_000)).padStart(9, "0")}`;
+  const soma = [...base].reduce((total, digito, indice) => total + Number(digito) * (indice % 2 ? 3 : 1), 0);
+  return `${base}${(10 - (soma % 10)) % 10}`;
+}
+
+function normalizarCodigoBarras(valor) {
+  return String(valor || "").replace(/\D/g, "").slice(0, 14);
+}
+
 function htmlCelulaMargem(produto) {
   if (!cacheCustos.has(produto.id)) return `<span class="margem-vazia" title="Carregando...">…</span>`;
   const custos = cacheCustos.get(produto.id);
@@ -993,6 +1005,7 @@ function normalizarProdutoImportado(item, categoriasValidas) {
       categoria,
       status: ["disponivel", "esgotado", "oculto"].includes(item.status) ? item.status : "disponivel",
       codigo: String(item.codigo || generateCode()).trim(),
+      codigoBarras: normalizarCodigoBarras(item.codigoBarras),
       descricao: String(item.descricao || "").trim(),
       destaques: Array.isArray(item.destaques) ? item.destaques.map(String) : [],
       etiquetas: Array.isArray(item.etiquetas) ? item.etiquetas.map(String) : [],
@@ -1284,6 +1297,7 @@ async function abrirFormularioProduto(container, produto = null) {
           </select>
         </label>
         <label>Código<input name="codigo" autocomplete="off" value="${escHtml(produto?.codigo || generateCode())}"></label>
+        <label class="barcode-field">Código de barras <small>Opcional</small><span><input name="codigoBarras" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="Ex.: 2001234567890" value="${escHtml(produto?.codigoBarras || "")}"><button type="button" class="btn-secondary" id="btn-gerar-codigo-barras">Gerar</button></span></label>
         <label class="chip-list__visivel" id="label-visivel-sem-foto" title="Por padrão, produto sem nenhuma foto cadastrada fica oculto no site. Marque aqui se quiser exibi-lo mesmo assim.">
           <input type="checkbox" name="visivelSemFoto" ${produto?.visivelSemFoto ? "checked" : ""}> Exibir no site mesmo sem foto
         </label>
@@ -1340,6 +1354,14 @@ async function abrirFormularioProduto(container, produto = null) {
 
   // Margem ao vivo: recalcula a cada digitação em qualquer campo envolvido.
   const formProduto = dialog.querySelector("#form-produto");
+  const inputCodigoBarras = formProduto.codigoBarras;
+  dialog.querySelector("#btn-gerar-codigo-barras")?.addEventListener("click", () => {
+    inputCodigoBarras.value = gerarCodigoBarras();
+    inputCodigoBarras.focus();
+  });
+  inputCodigoBarras?.addEventListener("input", () => {
+    inputCodigoBarras.value = normalizarCodigoBarras(inputCodigoBarras.value);
+  });
   const painelMargem = dialog.querySelector("#margem-resumo");
   const atualizarMargem = () => {
     painelMargem.innerHTML = htmlResumoMargem(calcularMargem({
@@ -1629,6 +1651,7 @@ async function abrirFormularioProduto(container, produto = null) {
       categoria: form.categoria.value,
       status: form.status.value,
       codigo: form.codigo.value.trim(),
+      codigoBarras: normalizarCodigoBarras(form.codigoBarras.value),
       descricao: form.descricao.value.trim(),
       destaques: form.destaques.value.split("\n").map(l => l.trim()).filter(Boolean),
       etiquetas: [...form.querySelectorAll('input[type="checkbox"]:checked')].map(c => c.value),
