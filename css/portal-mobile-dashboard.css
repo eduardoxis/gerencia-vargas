@@ -1,0 +1,8 @@
+/* Ajustes finais do painel administrativo para telas de celular. */
+@media (max-width: 640px) {
+  .portal-brand > span:last-child,
+  .portal-brand b { font-size: .92rem !important; letter-spacing: 0 !important; }
+  .portal-brand small { font-size: .52rem !important; letter-spacing: .24em !important; }
+  .portal-brand { gap: .6rem !important; }
+  .portal-brand__mark { width: 2.7rem !important; height: 2.7rem !important; font-size: 1.35rem !important; }
+}

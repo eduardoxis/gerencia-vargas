@@ -42,6 +42,17 @@ function adicionarFerramentasDoPortal() {
     form.innerHTML = `<span data-icon="search"></span><input id="busca-global" type="search" placeholder="Buscar produto, cliente, pedido ou contato" autocomplete="off"><div id="resultados-busca-global" hidden></div>`;
     topbar.insertBefore(form, topbar.querySelector("#portal-usuario"));
   }
+  const cabecalhoMenu = app?.querySelector(".portal-sidebar__head");
+  if (cabecalhoMenu && !cabecalhoMenu.querySelector("#btn-menu-mobile")) {
+    const botaoMenu = document.createElement("button");
+    botaoMenu.id = "btn-menu-mobile";
+    botaoMenu.type = "button";
+    botaoMenu.setAttribute("aria-label", "Abrir menu");
+    botaoMenu.innerHTML = `<span data-icon="menu"></span>`;
+    cabecalhoMenu.appendChild(botaoMenu);
+    botaoMenu.addEventListener("click", () => app.querySelector(".portal-sidebar")?.classList.toggle("is-mobile-open"));
+    app.querySelectorAll("[data-tab-trigger]").forEach(item => item.addEventListener("click", () => app.querySelector(".portal-sidebar")?.classList.remove("is-mobile-open")));
+  }
   preencherIcones();
 }
 
