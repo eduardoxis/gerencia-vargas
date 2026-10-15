@@ -1272,6 +1272,41 @@ export function listarUltimoAlertaEstoque() {
   });
 }
 
+// ---------- BACKUP ADMINISTRATIVO ----------
+// O backup é somente leitura e reúne as coleções da loja que o administrador
+// pode consultar. Não inclui contas do Firebase Authentication, arquivos do
+// Storage, carrinhos ou favoritos individuais.
+const COLECOES_BACKUP_ADMIN = [
+  "produtos", "servicos", "categorias", "categoriasServico", "marcas", "etiquetas",
+  "custosProdutos", "clientes", "usuarios", "pedidos", "enderecos", "historicoEstoque",
+  "leadsPerdidos", "alertasEstoque", "logsErros"
+];
+
+export async function gerarBackupAdministrativo() {
+  return withLoading("gerarBackupAdministrativo", async () => {
+    const dados = {};
+    // Sequencial para não abrir muitas leituras pesadas ao mesmo tempo em uma
+    // conta com catálogo grande. Se uma coleção falhar, nada é baixado como
+    // "backup completo" por engano.
+    for (const nomeColecao of COLECOES_BACKUP_ADMIN) {
+      const snap = await getDocs(collection(db, nomeColecao));
+      dados[nomeColecao] = snap.docs.map(item => ({ id: item.id, ...item.data() }));
+    }
+    // A regra de publicações permite apenas leitura direta do documento, não
+    // listagem da coleção; por isso ele é incluído separadamente no backup.
+    const publicacaoCatalogo = await getDoc(doc(db, "publicacoes", "catalogo"));
+    dados.publicacoes = publicacaoCatalogo.exists()
+      ? [{ id: publicacaoCatalogo.id, ...publicacaoCatalogo.data() }]
+      : [];
+    return {
+      formato: "gerencia-vargas-backup",
+      versao: 1,
+      geradoEm: new Date().toISOString(),
+      colecoes: dados
+    };
+  });
+}
+
 // ---------- RESUMO DO DASHBOARD ----------
 // Agregações e listas limitadas substituem a leitura integral de produtos,
 // categorias e usuários que acontecia toda vez que o painel era aberto.

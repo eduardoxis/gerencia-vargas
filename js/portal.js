@@ -4,7 +4,7 @@ import { ICONS } from "./utils/icons.js";
 
 const app = document.querySelector("#portal-app");
 let iniciado = false;
-const ABAS_DO_PAINEL = ["dashboard", "produtos", "servicos", "categorias", "marcas", "etiquetas", "estoque", "pedidos", "historico", "usuarios", "clientes", "leads"];
+const ABAS_DO_PAINEL = ["dashboard", "produtos", "servicos", "categorias", "marcas", "etiquetas", "estoque", "pedidos", "historico", "usuarios", "clientes", "leads", "notificacoes", "catalogo-pdf", "backup"];
 
 // Algumas versões antigas do HTML do painel não traziam todos os containers
 // das abas. No desktop isso deixava a navegação visível, mas sem área para

@@ -13,6 +13,7 @@ import { formatBRL, escHtml, generateCode, converterParaPNG, converterParaPropor
 import { comprimirParaBase64 } from "../services/imagem-base64.js";
 import { calcularMargem, formatarPct, ROTULO_NIVEL_MARGEM } from "../utils/margem.js";
 import { carregarPainelLeads } from "../modules/leads.js";
+import { carregarAbaBackup, carregarAbaCatalogoPdf, carregarAbaNotificacoes } from "./ferramentas-admin.js";
 import { ICONS, icon } from "../utils/icons.js";
 import { auth } from "../../firebase/firebase-config.js";
 import { carregarAbaServicos } from "./servicos-admin.js";
@@ -154,7 +155,10 @@ function definirCarregadoresAba(root) {
     historico: () => carregarAbaHistorico(painelDoRoot(root, "historico")),
     leads: () => carregarPainelLeads(painelDoRoot(root, "leads")),
     usuarios: () => carregarAbaUsuarios(painelDoRoot(root, "usuarios")),
-    clientes: () => carregarAbaClientes(painelDoRoot(root, "clientes"))
+    clientes: () => carregarAbaClientes(painelDoRoot(root, "clientes")),
+    notificacoes: () => carregarAbaNotificacoes(painelDoRoot(root, "notificacoes"), root),
+    "catalogo-pdf": () => carregarAbaCatalogoPdf(painelDoRoot(root, "catalogo-pdf")),
+    backup: () => carregarAbaBackup(painelDoRoot(root, "backup"))
   };
 }
 
