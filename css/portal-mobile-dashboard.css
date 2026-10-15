@@ -3,6 +3,11 @@
 .portal-global-search { width: min(480px, 44vw); padding: .55rem .8rem; }
 .portal-global-search input { font-size: 1rem; }
 .portal-global-search > span { width: 19px; }
+@media (min-width: 801px) {
+  .portal-sidebar .tabs-nav { overflow-x: hidden !important; overflow-y: auto !important; }
+  .portal-sidebar .tabs-nav::-webkit-scrollbar { width: 7px; }
+  .portal-sidebar .tabs-nav::-webkit-scrollbar-thumb { border-radius: 8px; background: rgba(255,255,255,.22); }
+}
 @media (max-width: 800px) {
   html, body.portal-body { height: auto; overflow: auto; }
   .portal-shell { display: block; width: 100%; min-height: 100dvh; height: auto; overflow: visible; }
