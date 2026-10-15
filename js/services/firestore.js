@@ -18,6 +18,10 @@ import { sinalizarAtualizacaoPublica } from "./public-sync.js";
 const TTL_PADRAO_MS = 5 * 60 * 1000; // 5 min
 const cacheMemoria = new Map();
 const requisicoesPendentes = new Map();
+// Páginas administrativas ficam apenas em memória: snapshots do Firestore não
+// devem ir para sessionStorage. Evita reler a mesma página ao trocar de aba.
+const cachePaginasAdmin = new Map();
+const TTL_PAGINA_ADMIN_MS = 90 * 1000;
 const metricasLeitura = { rede: 0, cache: 0, deduplicadas: 0 };
 
 function lerCache(chave) {
@@ -70,6 +74,9 @@ export function invalidarCache(chave) {
       .filter((k) => k === `fcache:${chave}` || k.startsWith(`fcache:${chave}:`))
       .forEach((k) => sessionStorage.removeItem(k));
   } catch { /* ignora */ }
+  // Qualquer gravação pode alterar uma tabela administrativa; é mais seguro
+  // descartar as páginas em memória do que mostrar resultados antigos.
+  cachePaginasAdmin.clear();
 }
 
 /** Envolve uma função assíncrona de leitura com cache em sessionStorage. */
@@ -132,17 +139,26 @@ const TAMANHO_PAGINA_ADMIN = 30;
 /** Página com cursor para coleções administrativas. Traz um item extra para
  * saber se existe próxima página, sem fazer uma consulta count(). */
 export async function listarPaginaAdmin(nomeColecao, { tamanho = TAMANHO_PAGINA_ADMIN, cursor = null, ordenarPor = "", direcao = "asc" } = {}) {
+  const chavePagina = `${nomeColecao}|${tamanho}|${ordenarPor}|${direcao}|${cursor?.id || "inicio"}`;
+  const emCache = cachePaginasAdmin.get(chavePagina);
+  if (emCache && emCache.expiraEm > Date.now()) {
+    metricasLeitura.cache += 1;
+    return emCache.valor;
+  }
   const clausulas = [];
   if (ordenarPor) clausulas.push(orderBy(ordenarPor, direcao));
   clausulas.push(limit(tamanho + 1));
   if (cursor) clausulas.push(startAfter(cursor));
+  metricasLeitura.rede += 1;
   const snap = await getDocs(query(collection(db, nomeColecao), ...clausulas));
   const docs = snap.docs.slice(0, tamanho);
-  return {
+  const resultado = {
     itens: docs.map(item => ({ id: item.id, ...item.data() })),
     cursor: docs.at(-1) || cursor,
     temMais: snap.docs.length > tamanho
   };
+  cachePaginasAdmin.set(chavePagina, { valor: resultado, expiraEm: Date.now() + TTL_PAGINA_ADMIN_MS });
+  return resultado;
 }
 
 // Listas do painel usam o mesmo cursor. Não ordenamos por campos opcionais

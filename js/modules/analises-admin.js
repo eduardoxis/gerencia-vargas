@@ -5,6 +5,8 @@ import { icon } from "../utils/icons.js";
 
 const texto = valor => String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 const temFoto = p => Boolean(String(p.imagem || "").trim() || p.imagens?.some(Boolean) || p.cores?.some(c => c?.imagem || c?.imagens?.some(Boolean)));
+const cacheBuscaGlobal = new Map();
+const TTL_BUSCA_GLOBAL_MS = 2 * 60 * 1000;
 
 async function todosProdutos() {
   const lista = []; let cursor = null; let temMais = true;
@@ -41,21 +43,32 @@ export function iniciarBuscaGlobal(root) {
   if (!form || !input || !painel || form.dataset.pronto) return;
   form.dataset.pronto = "1";
   let espera;
+  let buscaAtual = 0;
   const pesquisar = async () => {
     const termo = input.value.trim(); if (termo.length < 2) { painel.hidden = true; return; }
+    const chave = texto(termo);
+    const numeroBusca = ++buscaAtual;
     painel.hidden = false; painel.textContent = "Buscando...";
     try {
-      const [produtos, clientes, pedidos, contatos] = await Promise.all([buscarProdutosPorPrefixo(termo,{tamanho:6}), listarClientesPagina({tamanho:30}), listarPedidosAdminPagina({tamanho:30}), listarLeadsPerdidosPagina({tamanho:30})]);
-      const t = texto(termo); const itens = [
-        ...produtos.produtos.map(p => ({aba:"produtos", tipo:"Produto", nome:p.nome})),
-        ...clientes.itens.filter(x => texto(`${x.nome} ${x.email} ${x.telefone}`).includes(t)).map(x => ({aba:"clientes",tipo:"Cliente",nome:x.nome || x.email})),
-        ...pedidos.itens.filter(x => texto(`${x.nomeCliente} ${x.usuarioId}`).includes(t)).map(x => ({aba:"pedidos",tipo:"Pedido",nome:x.nomeCliente || "Cliente"})),
-        ...contatos.itens.filter(x => texto(`${x.nome} ${x.telefone}`).includes(t)).map(x => ({aba:"leads",tipo:"Contato",nome:x.nome || "Não informado"}))
-      ].slice(0,12);
+      let itens = cacheBuscaGlobal.get(chave);
+      if (!itens || itens.expiraEm <= Date.now()) {
+        const [produtos, clientes, pedidos, contatos] = await Promise.all([buscarProdutosPorPrefixo(termo,{tamanho:6}), listarClientesPagina({tamanho:30}), listarPedidosAdminPagina({tamanho:30}), listarLeadsPerdidosPagina({tamanho:30})]);
+        const t = texto(termo); const encontrados = [
+          ...produtos.produtos.map(p => ({aba:"produtos", tipo:"Produto", nome:p.nome})),
+          ...clientes.itens.filter(x => texto(`${x.nome} ${x.email} ${x.telefone}`).includes(t)).map(x => ({aba:"clientes",tipo:"Cliente",nome:x.nome || x.email})),
+          ...pedidos.itens.filter(x => texto(`${x.nomeCliente} ${x.usuarioId}`).includes(t)).map(x => ({aba:"pedidos",tipo:"Pedido",nome:x.nomeCliente || "Cliente"})),
+          ...contatos.itens.filter(x => texto(`${x.nome} ${x.telefone}`).includes(t)).map(x => ({aba:"leads",tipo:"Contato",nome:x.nome || "Não informado"}))
+        ].slice(0,12);
+        itens = { valor: encontrados, expiraEm: Date.now() + TTL_BUSCA_GLOBAL_MS };
+        if (cacheBuscaGlobal.size > 50) cacheBuscaGlobal.clear();
+        cacheBuscaGlobal.set(chave, itens);
+      }
+      if (numeroBusca !== buscaAtual) return;
+      itens = itens.valor;
       painel.innerHTML = itens.length ? itens.map(x => `<button type="button" data-aba-global="${x.aba}"><small>${x.tipo}</small><strong>${escHtml(x.nome || "Sem nome")}</strong></button>`).join("") : "<span>Nenhum resultado recente encontrado.</span>";
       painel.querySelectorAll("[data-aba-global]").forEach(btn => btn.addEventListener("click", () => { root.querySelector(`[data-tab-trigger="${btn.dataset.abaGlobal}"]`)?.click(); painel.hidden=true; input.value=""; }));
     } catch { painel.textContent = "Não foi possível pesquisar agora."; }
   };
-  input.addEventListener("input", () => { clearTimeout(espera); espera=setTimeout(pesquisar,300); });
+  input.addEventListener("input", () => { clearTimeout(espera); espera=setTimeout(pesquisar,500); });
   form.addEventListener("submit", e => { e.preventDefault(); pesquisar(); });
 }
