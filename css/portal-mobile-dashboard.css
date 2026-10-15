@@ -1,5 +1,8 @@
 /* Menu compacto para celulares e tablets em modo retrato. */
 #btn-menu-mobile { display: none; }
+.portal-global-search { width: min(480px, 44vw); padding: .55rem .8rem; }
+.portal-global-search input { font-size: 1rem; }
+.portal-global-search > span { width: 19px; }
 @media (max-width: 800px) {
   html, body.portal-body { height: auto; overflow: auto; }
   .portal-shell { display: block; width: 100%; min-height: 100dvh; height: auto; overflow: visible; }
