@@ -7,12 +7,16 @@
   .portal-sidebar__head { display: flex !important; position: sticky; top: 0; z-index: 20; justify-content: space-between; min-height: 74px; padding: .7rem 1rem; background: #fff; border-bottom: 1px solid var(--portal-linha); color: var(--portal-texto); }
   .portal-sidebar .portal-brand { color: var(--portal-texto); }
   .portal-sidebar .portal-brand small { color: var(--portal-suave); }
-  .portal-sidebar .tabs-nav { display: none; position: absolute; top: 74px; left: 0; z-index: 19; width: 100%; max-height: calc(100dvh - 74px); padding: .7rem; overflow-y: auto; background: var(--portal-marrom); box-shadow: 0 12px 24px rgba(48,27,22,.22); }
+  .portal-sidebar .tabs-nav { display: none; position: fixed; top: 74px; left: 0; z-index: 19; width: min(280px, calc(100vw - 42px)); height: calc(100dvh - 74px); max-height: none; padding: .7rem .7rem 7rem; overflow-y: auto; background: var(--portal-marrom); box-shadow: 8px 12px 24px rgba(48,27,22,.25); }
   .portal-sidebar.is-mobile-open .tabs-nav { display: block; }
   .portal-sidebar .tabs-nav__list { display: grid; gap: .25rem; overflow: visible; }
-  .portal-sidebar .tabs-nav button { justify-content: flex-start; min-height: 43px; padding: .68rem .8rem; font-size: .9rem; }
-  .portal-sidebar .nav-label { font-size: .9rem !important; }
+  .portal-sidebar .tabs-nav button { display: flex; justify-content: flex-start; min-height: 43px; padding: .68rem .8rem; font-size: .9rem; }
+  .portal-sidebar .tabs-nav button .nav-label { display: inline !important; width: auto !important; font-size: .9rem !important; line-height: 1.2 !important; visibility: visible !important; opacity: 1 !important; }
   .portal-sidebar__footer { display: none; }
+  .portal-sidebar.is-mobile-open .portal-sidebar__footer { display: block; position: fixed; bottom: 0; left: 0; z-index: 20; width: min(280px, calc(100vw - 42px)); padding: .65rem .75rem .8rem; background: var(--portal-marrom-2); border-top: 1px solid rgba(255,255,255,.12); }
+  .portal-sidebar.is-mobile-open .portal-user { justify-content: flex-start; }
+  .portal-sidebar.is-mobile-open .portal-user > span:last-child { display: block; font-size: .78rem; }
+  .portal-sidebar.is-mobile-open .portal-sair { display: flex; justify-content: flex-start; font-size: .86rem; }
   #btn-menu-mobile { display: grid; place-items: center; width: 42px; height: 42px; padding: 0; border: 0; border-radius: 10px; color: var(--portal-marrom); background: transparent; }
   #btn-menu-mobile svg { width: 27px; height: 27px; }
   .portal-shell > .portal-main { display: block; width: 100%; min-width: 0; height: auto; overflow: visible; }
