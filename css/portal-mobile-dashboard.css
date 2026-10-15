@@ -15,9 +15,12 @@
   .portal-sidebar__footer { display: none; }
   .portal-sidebar.is-mobile-open .portal-sidebar__head { display: none !important; }
   .portal-sidebar.is-mobile-open .portal-sidebar__footer { display: block; position: fixed; right: 0; bottom: 0; left: auto; z-index: 31; width: min(280px, calc(100vw - 42px)); padding: .65rem .75rem .8rem; background: var(--portal-marrom-2); border-top: 1px solid rgba(255,255,255,.12); }
-  .portal-sidebar.is-mobile-open .portal-user { justify-content: flex-start; }
-  .portal-sidebar.is-mobile-open .portal-user > span:last-child { display: block; font-size: .78rem; }
-  .portal-sidebar.is-mobile-open .portal-sair { display: flex; justify-content: flex-start; font-size: .86rem; }
+  .portal-sidebar.is-mobile-open .portal-user { display: flex; justify-content: flex-start; align-items: center; gap: .7rem; padding: .5rem; }
+  .portal-sidebar.is-mobile-open .portal-user__avatar { display: grid !important; place-items: center; width: 32px; height: 32px; flex: 0 0 32px; border-radius: 50%; color: #fff; background: var(--portal-vinho); font-size: .82rem !important; font-weight: 800; }
+  .portal-sidebar.is-mobile-open .portal-user > span:last-child { display: block; min-width: 0; font-size: .78rem; }
+  .portal-sidebar.is-mobile-open .portal-user b { display: block; max-width: 175px; overflow: hidden; font-size: .78rem !important; text-overflow: ellipsis; white-space: nowrap; }
+  .portal-sidebar.is-mobile-open .portal-user small { display: block; margin-top: .18rem; color: #c9aaa0; font-size: .68rem !important; }
+  .portal-sidebar.is-mobile-open .portal-sair { display: flex; justify-content: flex-start; align-items: center; gap: .58rem; font-size: .86rem; }
   #btn-menu-mobile { display: grid; place-items: center; width: 42px; height: 42px; padding: 0; border: 0; border-radius: 10px; color: var(--portal-marrom); background: transparent; }
   #btn-menu-mobile svg { width: 27px; height: 27px; }
   .portal-shell > .portal-main { display: block; width: 100%; min-width: 0; height: auto; overflow: visible; }
