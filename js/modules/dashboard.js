@@ -5,7 +5,7 @@ import {
   listarEtiquetas, listarEtiquetasPagina, criarEtiqueta, excluirEtiqueta,
   listarMarcas, listarMarcasPagina, criarMarca, atualizarMarca, excluirMarca,
   listarClientes, listarClientesPagina, criarCliente, atualizarCliente, excluirCliente,
-  ajustarEstoque, listarUsuarios, listarUsuariosPagina, migrarCamposFiltroCatalogo, migrarIndiceBuscaProdutos, listarUltimoAlertaEstoque,
+  ajustarEstoque, listarUsuarios, listarUsuariosPagina, migrarCamposFiltroCatalogo, migrarIndiceBuscaProdutos, publicarProdutosOcultosNoCatalogo, listarUltimoAlertaEstoque,
   obterResumoDashboard, listarPedidosAdminPagina, atualizarStatusPedido, listarHistoricoEstoquePagina,
   obterCustoProduto, listarCustosProdutos, salvarCustoProduto
 } from "../services/firestore.js";
@@ -646,6 +646,7 @@ async function carregarAbaProdutos(container) {
       <button class="btn-secondary" id="btn-prompt-importacao">${icon("clipboardList")}Prompt para IA</button>
       <button class="btn-secondary" id="btn-prompt-imagens">${icon("image")}Prompt para imagens</button>
       <button class="btn-secondary" id="btn-importar-json">${icon("upload")}Importar JSON</button>
+      <button class="btn-secondary" id="btn-publicar-ocultos">Publicar ocultos</button>
       <input type="file" id="input-importar-json" accept="application/json,.json" hidden>
       <button class="btn-primary" id="btn-novo-produto">${icon("plus")}Novo produto</button>
     </div>
@@ -773,6 +774,38 @@ async function carregarAbaProdutos(container) {
     inputJson.value = "";
     if (!arquivo) return;
     await importarProdutosJson(container, arquivo);
+  });
+
+  container.querySelector("#btn-publicar-ocultos").addEventListener("click", async (e) => {
+    const confirmar = await confirmarAcao(
+      "Publicar no site todos os produtos ocultos que tenham foto e pelo menos 1 unidade em estoque? Produtos sem foto ou sem estoque continuarão ocultos.",
+      { titulo: "Publicar produtos no catálogo", textoConfirmar: "Publicar" }
+    );
+    if (!confirmar) return;
+
+    const btn = e.currentTarget;
+    const textoOriginal = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Publicando...";
+    try {
+      const { total, ocultosIgnorados } = await publicarProdutosOcultosNoCatalogo();
+      if (total) {
+        toast(`${total} produto(s) publicado(s) no catálogo.`);
+        await carregarAbaProdutos(container);
+      } else {
+        toast(ocultosIgnorados
+          ? "Nenhum produto oculto está pronto para publicar. Verifique foto e quantidade."
+          : "Não há produtos ocultos para publicar.", "error");
+      }
+    } catch (erro) {
+      console.error("Falha ao publicar produtos ocultos:", erro);
+      toast("Não foi possível publicar os produtos. Tente novamente.", "error");
+    } finally {
+      if (btn.isConnected) {
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
+      }
+    }
   });
 
   const dialogPrompt = container.querySelector("#dialog-prompt-importacao");
@@ -987,7 +1020,7 @@ Regras obrigatórias:
 - "categoria" é obrigatória e precisa ser exatamente uma das categorias já cadastradas abaixo. Sempre selecione uma categoria existente; não deixe vazio, não invente, não altere maiúsculas/minúsculas e não crie categoria nova.
 - "marca" é opcional, mas, quando preenchida, precisa ser exatamente uma das marcas já cadastradas abaixo. Não invente, não altere maiúsculas/minúsculas e não crie marca nova.
 - Todo texto descritivo criado para o produto deve estar EM LETRAS MAIÚSCULAS: "nome", "codigo", "descricao", itens de "destaques" e itens de "etiquetas". As exceções são URLs, os valores técnicos de "status" e as categorias/marcas cadastradas, que devem manter exatamente a grafia registrada no painel.
-- "status" pode ser apenas: "disponivel", "esgotado" ou "oculto".
+- "status" deve ser sempre "disponivel". Não use "esgotado" nem "oculto", pois todos os produtos deste arquivo devem aparecer no site após a importação.
 - "imagem" e "imagens" são opcionais, mas devem conter somente URLs públicas HTTPS. Produtos sem foto não aparecem no site público.
 - "imagens" deve ser uma lista de URLs; a primeira será usada como capa. Se usar "imagem", repita a mesma URL como primeiro item de "imagens".
 - "destaques" e "etiquetas" devem ser listas de textos. Se não houver conteúdo, use [] .
@@ -1069,7 +1102,9 @@ function normalizarProdutoImportado(item, categoriasValidas) {
       preco,
       quantidade,
       categoria,
-      status: ["disponivel", "esgotado", "oculto"].includes(item.status) ? item.status : "disponivel",
+      // Toda importação por IA entra publicada. O estoque mínimo já é
+      // validado acima, por isso o catálogo pode mostrar o produto com segurança.
+      status: "disponivel",
       codigo: String(item.codigo || generateCode()).trim(),
       codigoBarras: normalizarCodigoBarras(item.codigoBarras),
       descricao,

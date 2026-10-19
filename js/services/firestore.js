@@ -453,6 +453,42 @@ export function migrarCamposFiltroCatalogo(onProgresso) {
   });
 }
 
+/**
+ * Publica os itens que foram importados como "oculto" por engano, desde que
+ * estejam prontos para o catálogo: ao menos uma unidade em estoque e uma foto.
+ * Itens sem estoque ou sem imagem permanecem ocultos para evitar cards vazios.
+ */
+export function publicarProdutosOcultosNoCatalogo() {
+  return withLoading("publicarProdutosOcultosNoCatalogo", async () => {
+    const snap = await getDocs(query(collection(db, "produtos"), where("status", "==", "oculto")));
+    const prontos = snap.docs.filter(item => {
+      const dados = item.data();
+      return Number(dados.quantidade) >= 1 && produtoTemImagemPublica(dados);
+    });
+
+    const TAMANHO_LOTE = 400;
+    for (let inicio = 0; inicio < prontos.length; inicio += TAMANHO_LOTE) {
+      const lote = writeBatch(db);
+      prontos.slice(inicio, inicio + TAMANHO_LOTE).forEach(item => {
+        const dados = item.data();
+        lote.update(item.ref, {
+          status: "disponivel",
+          disponivel: true,
+          faixaPreco: calcularFaixaPreco(dados.preco)
+        });
+      });
+      await lote.commit();
+    }
+
+    if (prontos.length) {
+      invalidarCacheVitrinesHome();
+      invalidarCache("resumoDashboard");
+      await notificarMudancaPublica();
+    }
+    return { total: prontos.length, ocultosIgnorados: snap.size - prontos.length };
+  });
+}
+
 function produtoTemImagemPublica(produto = {}) {
   const temUrl = (url) => typeof url === "string" && url.trim().length > 0;
   return temUrl(produto.imagem)
