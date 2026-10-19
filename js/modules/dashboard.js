@@ -980,6 +980,27 @@ O arquivo deve ter exatamente esta estrutura:
   ]
 }
 
+Regras obrigatórias:
+- "nome", "preco" e "descricao" são obrigatórios. Escreva o "nome" INTEIRAMENTE EM LETRAS MAIÚSCULAS, incluindo palavras com acento. Quando o produto for vendido por unidade, informe a quantidade e "UN" no final do nome (exemplo: "CANETA ESFEROGRÁFICA AZUL 1 UN"). Para kits, pacotes, caixas ou conjuntos, informe a quantidade e a unidade correspondente (exemplo: "LÁPIS DE COR 12 UN" ou "PAPEL SULFITE A4 500 FOLHAS"). "preco" deve ser número, sem R$, vírgula ou texto.
+- "descricao" NUNCA pode ficar vazia, ser "NÃO INFORMADO", repetir apenas o nome ou conter texto genérico. Crie uma descrição útil, específica e comercial, com no mínimo 20 caracteres, explicando o que é o produto, suas características relevantes e sua utilidade. Não invente especificações técnicas, ingredientes, certificações ou benefícios que não foram informados.
+- "quantidade" deve ser número inteiro maior ou igual a zero.
+- "categoria" precisa ser exatamente uma das categorias já cadastradas abaixo. Não invente, não altere maiúsculas/minúsculas e não crie categoria nova.
+- "marca" é opcional, mas, quando preenchida, precisa ser exatamente uma das marcas já cadastradas abaixo. Não invente, não altere maiúsculas/minúsculas e não crie marca nova.
+- Todo texto descritivo criado para o produto deve estar EM LETRAS MAIÚSCULAS: "nome", "codigo", "descricao", itens de "destaques" e itens de "etiquetas". As exceções são URLs, os valores técnicos de "status" e as categorias/marcas cadastradas, que devem manter exatamente a grafia registrada no painel.
+- "status" pode ser apenas: "disponivel", "esgotado" ou "oculto".
+- "imagem" e "imagens" são opcionais, mas devem conter somente URLs públicas HTTPS. Produtos sem foto não aparecem no site público.
+- "imagens" deve ser uma lista de URLs; a primeira será usada como capa. Se usar "imagem", repita a mesma URL como primeiro item de "imagens".
+- "destaques" e "etiquetas" devem ser listas de textos. Se não houver conteúdo, use [] .
+- Não use comentários, reticências, texto fora do JSON, vírgula depois do último campo, base64, arquivo local ou URL privada.
+- Gere todos os produtos solicitados dentro da mesma lista "produtos".
+
+Categorias permitidas agora:
+${categoriasTexto}
+
+Marcas permitidas agora:
+${marcasTexto}`;
+}
+
 function criarPromptEdicaoImagensProdutos() {
   return `Use cada imagem anexada como referência para editar a foto do respectivo produto.
 
@@ -1002,27 +1023,6 @@ ENTREGA
 - Não una produtos diferentes na mesma imagem.
 - Quando existirem várias fotos do mesmo produto, mantenha o mesmo fundo branco, escala e centralização em todas elas.
 - Preserve a orientação original quando ela ajudar a mostrar melhor o produto.`;
-}
-
-Regras obrigatórias:
-- "nome", "preco" e "descricao" são obrigatórios. Escreva o "nome" INTEIRAMENTE EM LETRAS MAIÚSCULAS, incluindo palavras com acento. Quando o produto for vendido por unidade, informe a quantidade e "UN" no final do nome (exemplo: "CANETA ESFEROGRÁFICA AZUL 1 UN"). Para kits, pacotes, caixas ou conjuntos, informe a quantidade e a unidade correspondente (exemplo: "LÁPIS DE COR 12 UN" ou "PAPEL SULFITE A4 500 FOLHAS"). "preco" deve ser número, sem R$, vírgula ou texto.
-- "descricao" NUNCA pode ficar vazia, ser "NÃO INFORMADO", repetir apenas o nome ou conter texto genérico. Crie uma descrição útil, específica e comercial, com no mínimo 20 caracteres, explicando o que é o produto, suas características relevantes e sua utilidade. Não invente especificações técnicas, ingredientes, certificações ou benefícios que não foram informados.
-- "quantidade" deve ser número inteiro maior ou igual a zero.
-- "categoria" precisa ser exatamente uma das categorias já cadastradas abaixo. Não invente, não altere maiúsculas/minúsculas e não crie categoria nova.
-- "marca" é opcional, mas, quando preenchida, precisa ser exatamente uma das marcas já cadastradas abaixo. Não invente, não altere maiúsculas/minúsculas e não crie marca nova.
-- Todo texto descritivo criado para o produto deve estar EM LETRAS MAIÚSCULAS: "nome", "codigo", "descricao", itens de "destaques" e itens de "etiquetas". As exceções são URLs, os valores técnicos de "status" e as categorias/marcas cadastradas, que devem manter exatamente a grafia registrada no painel.
-- "status" pode ser apenas: "disponivel", "esgotado" ou "oculto".
-- "imagem" e "imagens" são opcionais, mas devem conter somente URLs públicas HTTPS. Produtos sem foto não aparecem no site público.
-- "imagens" deve ser uma lista de URLs; a primeira será usada como capa. Se usar "imagem", repita a mesma URL como primeiro item de "imagens".
-- "destaques" e "etiquetas" devem ser listas de textos. Se não houver conteúdo, use [] .
-- Não use comentários, reticências, texto fora do JSON, vírgula depois do último campo, base64, arquivo local ou URL privada.
-- Gere todos os produtos solicitados dentro da mesma lista "produtos".
-
-Categorias permitidas agora:
-${categoriasTexto}
-
-Marcas permitidas agora:
-${marcasTexto}`;
 }
 
 function normalizarProdutoImportado(item, categoriasValidas) {
