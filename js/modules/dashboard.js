@@ -942,7 +942,7 @@ O arquivo deve ter exatamente esta estrutura:
       "categoria": "CATEGORIA EXISTENTE",
       "status": "disponivel",
       "codigo": "PROD-EXEMPLO-001",
-      "descricao": "DESCRIÇÃO OPCIONAL",
+      "descricao": "DESCRIÇÃO COMPLETA E OBRIGATÓRIA DO PRODUTO, COM CARACTERÍSTICAS, MATERIAL, TAMANHO OU CONTEÚDO E PRINCIPAL UTILIDADE.",
       "destaques": ["DESTAQUE OPCIONAL 1", "DESTAQUE OPCIONAL 2"],
       "etiquetas": ["ETIQUETA OPCIONAL"],
       "imagem": "https://url-publica-da-imagem-principal.webp",
@@ -952,7 +952,8 @@ O arquivo deve ter exatamente esta estrutura:
 }
 
 Regras obrigatórias:
-- "nome" e "preco" são obrigatórios. Escreva o "nome" INTEIRAMENTE EM LETRAS MAIÚSCULAS, incluindo palavras com acento. Quando o produto for vendido por unidade, informe a quantidade e "UN" no final do nome (exemplo: "CANETA ESFEROGRÁFICA AZUL 1 UN"). Para kits, pacotes, caixas ou conjuntos, informe a quantidade e a unidade correspondente (exemplo: "LÁPIS DE COR 12 UN" ou "PAPEL SULFITE A4 500 FOLHAS"). "preco" deve ser número, sem R$, vírgula ou texto.
+- "nome", "preco" e "descricao" são obrigatórios. Escreva o "nome" INTEIRAMENTE EM LETRAS MAIÚSCULAS, incluindo palavras com acento. Quando o produto for vendido por unidade, informe a quantidade e "UN" no final do nome (exemplo: "CANETA ESFEROGRÁFICA AZUL 1 UN"). Para kits, pacotes, caixas ou conjuntos, informe a quantidade e a unidade correspondente (exemplo: "LÁPIS DE COR 12 UN" ou "PAPEL SULFITE A4 500 FOLHAS"). "preco" deve ser número, sem R$, vírgula ou texto.
+- "descricao" NUNCA pode ficar vazia, ser "NÃO INFORMADO", repetir apenas o nome ou conter texto genérico. Crie uma descrição útil, específica e comercial, com no mínimo 20 caracteres, explicando o que é o produto, suas características relevantes e sua utilidade. Não invente especificações técnicas, ingredientes, certificações ou benefícios que não foram informados.
 - "quantidade" deve ser número inteiro maior ou igual a zero.
 - "categoria" precisa ser exatamente uma das categorias já cadastradas abaixo. Não invente, não altere maiúsculas/minúsculas e não crie categoria nova.
 - "marca" é opcional, mas, quando preenchida, precisa ser exatamente uma das marcas já cadastradas abaixo. Não invente, não altere maiúsculas/minúsculas e não crie marca nova.
@@ -975,6 +976,11 @@ function normalizarProdutoImportado(item, categoriasValidas) {
   const erros = [];
   const nome = String(item.nome || "").trim().toUpperCase();
   if (!nome) erros.push("nome ausente");
+
+  const descricao = String(item.descricao || "").trim();
+  if (descricao.length < 20 || descricao.toUpperCase() === nome) {
+    erros.push("descrição obrigatória ausente ou muito curta");
+  }
 
   const preco = Number(item.preco);
   if (!Number.isFinite(preco) || preco < 0) erros.push("preço inválido");
@@ -1006,7 +1012,7 @@ function normalizarProdutoImportado(item, categoriasValidas) {
       status: ["disponivel", "esgotado", "oculto"].includes(item.status) ? item.status : "disponivel",
       codigo: String(item.codigo || generateCode()).trim(),
       codigoBarras: normalizarCodigoBarras(item.codigoBarras),
-      descricao: String(item.descricao || "").trim(),
+      descricao,
       destaques: Array.isArray(item.destaques) ? item.destaques.map(String) : [],
       etiquetas: Array.isArray(item.etiquetas) ? item.etiquetas.map(String) : [],
       imagens,
