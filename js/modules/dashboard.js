@@ -644,6 +644,7 @@ async function carregarAbaProdutos(container) {
       </div>
       <label class="admin-filter-check" title="Mostrar somente produtos sem imagem cadastrada"><input type="checkbox" id="filtro-produtos-sem-foto" ${estadoPaginacaoProdutos.semFoto ? "checked" : ""}><span>Sem fotos</span></label>
       <button class="btn-secondary" id="btn-prompt-importacao">${icon("clipboardList")}Prompt para IA</button>
+      <button class="btn-secondary" id="btn-prompt-imagens">${icon("image")}Prompt para imagens</button>
       <button class="btn-secondary" id="btn-importar-json">${icon("upload")}Importar JSON</button>
       <input type="file" id="input-importar-json" accept="application/json,.json" hidden>
       <button class="btn-primary" id="btn-novo-produto">${icon("plus")}Novo produto</button>
@@ -676,6 +677,16 @@ async function carregarAbaProdutos(container) {
       <textarea id="texto-prompt-importacao" class="prompt-importacao__texto" readonly spellcheck="false"></textarea>
       <div class="form-actions">
         <button type="button" class="btn-primary" id="btn-copiar-prompt-importacao">${icon("copy")}Copiar prompt</button>
+      </div>
+    </dialog>
+    <dialog id="dialog-prompt-imagens" class="dialog-form dialog-prompt-importacao">
+      <div class="prompt-importacao__head">
+        <div><h2>Prompt para editar imagens de produtos</h2><p>Anexe as fotos do produto na IA, copie este prompt e peça a edição.</p></div>
+        <button type="button" class="prompt-importacao__close" id="btn-fechar-prompt-imagens" aria-label="Fechar">${icon("close")}</button>
+      </div>
+      <textarea id="texto-prompt-imagens" class="prompt-importacao__texto" readonly spellcheck="false"></textarea>
+      <div class="form-actions">
+        <button type="button" class="btn-primary" id="btn-copiar-prompt-imagens">${icon("copy")}Copiar prompt</button>
       </div>
     </dialog>`;
 
@@ -783,6 +794,24 @@ async function carregarAbaProdutos(container) {
       document.execCommand("copy");
     }
     toast("Prompt copiado. Cole na IA para gerar o arquivo JSON.");
+  });
+
+  const dialogPromptImagens = container.querySelector("#dialog-prompt-imagens");
+  const textoPromptImagens = container.querySelector("#texto-prompt-imagens");
+  container.querySelector("#btn-prompt-imagens").addEventListener("click", () => {
+    textoPromptImagens.value = criarPromptEdicaoImagensProdutos();
+    dialogPromptImagens.showModal();
+  });
+  container.querySelector("#btn-fechar-prompt-imagens").addEventListener("click", () => dialogPromptImagens.close());
+  container.querySelector("#btn-copiar-prompt-imagens").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(textoPromptImagens.value);
+    } catch {
+      textoPromptImagens.focus();
+      textoPromptImagens.select();
+      document.execCommand("copy");
+    }
+    toast("Prompt de edição copiado. Anexe as imagens e cole-o na IA.");
   });
 
 }
@@ -949,6 +978,30 @@ O arquivo deve ter exatamente esta estrutura:
       "imagens": ["https://url-publica-da-imagem-principal.webp"]
     }
   ]
+}
+
+function criarPromptEdicaoImagensProdutos() {
+  return `Use cada imagem anexada como referência para editar a foto do respectivo produto.
+
+OBJETIVO OBRIGATÓRIO
+- Entregue UMA imagem final para cada imagem anexada.
+- Coloque o produto centralizado, reto e totalmente visível em uma tela quadrada 2000 × 2000 px.
+- Use fundo branco puro e uniforme (#FFFFFF), sem cenário, textura, degradê, mesa ou objetos ao redor.
+- Deixe margens equilibradas e faça o produto ocupar aproximadamente 70% a 82% da área, sem cortar nenhuma parte.
+
+FIDELIDADE AO PRODUTO
+- Preserve exatamente o produto original: cor, embalagem, formato, proporções, rótulo, marca, textos, estampas, tampa e acessórios.
+- Não invente detalhes, não altere nomes, não troque a cor e não modifique textos ou logotipos da embalagem.
+- Remova somente fundo, ruídos, etiquetas de preço, mãos, pessoas, reflexos indesejados e objetos que não fazem parte do produto.
+- Corrija iluminação, nitidez, enquadramento e pequenas imperfeições visuais de forma natural.
+- Se houver sombra, use apenas uma sombra muito suave e discreta abaixo do produto, sem escurecer o fundo.
+
+ENTREGA
+- Gere imagens limpas em alta resolução, prontas para catálogo de e-commerce.
+- Não adicione texto, borda, moldura, marca-d'água, selo promocional ou colagem.
+- Não una produtos diferentes na mesma imagem.
+- Quando existirem várias fotos do mesmo produto, mantenha o mesmo fundo branco, escala e centralização em todas elas.
+- Preserve a orientação original quando ela ajudar a mostrar melhor o produto.`;
 }
 
 Regras obrigatórias:

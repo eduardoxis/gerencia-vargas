@@ -503,7 +503,7 @@
 .btn-link:hover { text-decoration: underline; }
 .admin-toolbar .select-icon { flex: 0 0 auto; min-width: 190px; }
 .admin-toolbar #btn-importar-json { min-width: 245px; justify-content: center; }
-.admin-toolbar #btn-prompt-importacao { min-width: 190px; justify-content: center; }
+.admin-toolbar #btn-prompt-importacao, .admin-toolbar #btn-prompt-imagens { min-width: 190px; justify-content: center; }
 .admin-toolbar #btn-novo-produto { min-width: 160px; justify-content: center; }
 .admin-toolbar select { appearance: none; cursor: pointer; }
 .admin-toolbar .btn-primary { display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap; }
@@ -511,7 +511,7 @@
 
 @media (max-width: 760px) {
   .admin-search { flex-basis: 100%; }
-  .admin-toolbar .select-icon, .admin-toolbar #btn-importar-json, .admin-toolbar #btn-prompt-importacao, .admin-toolbar #btn-novo-produto { flex: 1 1 auto; min-width: 0; }
+  .admin-toolbar .select-icon, .admin-toolbar #btn-importar-json, .admin-toolbar #btn-prompt-importacao, .admin-toolbar #btn-prompt-imagens, .admin-toolbar #btn-novo-produto { flex: 1 1 auto; min-width: 0; }
 }
 
 .table-wrap { overflow-x: auto; border: 1px solid var(--cinza-100); border-radius: var(--raio-md); }
