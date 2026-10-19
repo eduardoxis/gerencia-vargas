@@ -719,7 +719,10 @@ export function atualizarProduto(id, dados) {
     await registrarAuditoria("atualizacao", "produto", id, antes, { ...antes, ...dados });
     invalidarCacheVitrinesHome();
     await notificarMudancaPublica();
-    return resultado;
+    // A transação já aplicou a atualização. Não há um resultado do Firestore
+    // para devolver neste caminho; retornar uma variável inexistente fazia o
+    // envio de fotos parecer falhar mesmo depois de a alteração ser salva.
+    return;
   });
 }
 
