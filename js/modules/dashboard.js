@@ -983,8 +983,8 @@ O arquivo deve ter exatamente esta estrutura:
 Regras obrigatórias:
 - "nome", "preco" e "descricao" são obrigatórios. Escreva o "nome" INTEIRAMENTE EM LETRAS MAIÚSCULAS, incluindo palavras com acento. Quando o produto for vendido por unidade, informe a quantidade e "UN" no final do nome (exemplo: "CANETA ESFEROGRÁFICA AZUL 1 UN"). Para kits, pacotes, caixas ou conjuntos, informe a quantidade e a unidade correspondente (exemplo: "LÁPIS DE COR 12 UN" ou "PAPEL SULFITE A4 500 FOLHAS"). "preco" deve ser número, sem R$, vírgula ou texto.
 - "descricao" NUNCA pode ficar vazia, ser "NÃO INFORMADO", repetir apenas o nome ou conter texto genérico. Crie uma descrição útil, específica e comercial, com no mínimo 20 caracteres, explicando o que é o produto, suas características relevantes e sua utilidade. Não invente especificações técnicas, ingredientes, certificações ou benefícios que não foram informados.
-- "quantidade" deve ser número inteiro maior ou igual a zero.
-- "categoria" precisa ser exatamente uma das categorias já cadastradas abaixo. Não invente, não altere maiúsculas/minúsculas e não crie categoria nova.
+- "quantidade" é obrigatória e deve ser um número inteiro de no mínimo 1. Nunca use 0, valor negativo, campo vazio ou texto. Quando a quantidade não for informada, use 1.
+- "categoria" é obrigatória e precisa ser exatamente uma das categorias já cadastradas abaixo. Sempre selecione uma categoria existente; não deixe vazio, não invente, não altere maiúsculas/minúsculas e não crie categoria nova.
 - "marca" é opcional, mas, quando preenchida, precisa ser exatamente uma das marcas já cadastradas abaixo. Não invente, não altere maiúsculas/minúsculas e não crie marca nova.
 - Todo texto descritivo criado para o produto deve estar EM LETRAS MAIÚSCULAS: "nome", "codigo", "descricao", itens de "destaques" e itens de "etiquetas". As exceções são URLs, os valores técnicos de "status" e as categorias/marcas cadastradas, que devem manter exatamente a grafia registrada no painel.
 - "status" pode ser apenas: "disponivel", "esgotado" ou "oculto".
@@ -1038,8 +1038,15 @@ function normalizarProdutoImportado(item, categoriasValidas) {
   const preco = Number(item.preco);
   if (!Number.isFinite(preco) || preco < 0) erros.push("preço inválido");
 
+  const quantidade = Number(item.quantidade);
+  if (!Number.isInteger(quantidade) || quantidade < 1) {
+    erros.push("quantidade obrigatória: informe no mínimo 1 unidade");
+  }
+
   const categoria = String(item.categoria || "").trim();
-  if (categoria && categoriasValidas.length && !categoriasValidas.includes(categoria)) {
+  if (!categoria) {
+    erros.push("categoria obrigatória ausente");
+  } else if (!categoriasValidas.includes(categoria)) {
     erros.push(`categoria "${categoria}" não existe`);
   }
 
@@ -1060,7 +1067,7 @@ function normalizarProdutoImportado(item, categoriasValidas) {
           }).filter(c => c.nome)
         : [],
       preco,
-      quantidade: Number.isFinite(Number(item.quantidade)) ? parseInt(item.quantidade, 10) : 0,
+      quantidade,
       categoria,
       status: ["disponivel", "esgotado", "oculto"].includes(item.status) ? item.status : "disponivel",
       codigo: String(item.codigo || generateCode()).trim(),
