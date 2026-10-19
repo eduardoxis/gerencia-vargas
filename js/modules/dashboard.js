@@ -950,7 +950,7 @@ function criarPromptImportacaoProdutos(categorias = [], marcas = []) {
   const nomesCategorias = categorias.map(c => c.nome).filter(Boolean);
   const categoriasTexto = nomesCategorias.length
     ? nomesCategorias.map(nome => `- ${nome}`).join("\n")
-    : "- Nenhuma categoria cadastrada no momento. Deixe o campo categoria vazio.";
+    : "- Nenhuma categoria cadastrada no momento. Não gere o arquivo: peça primeiro o cadastro de uma categoria no painel.";
   const nomesMarcas = marcas.map(m => m.nome).filter(Boolean);
   const marcasTexto = nomesMarcas.length
     ? nomesMarcas.map(nome => `- ${nome}`).join("\n")
