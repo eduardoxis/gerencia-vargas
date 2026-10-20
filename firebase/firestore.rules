@@ -58,6 +58,17 @@ service cloud.firestore {
       allow write: if ehAdmin();
     }
 
+    // Banners: visitantes consultam somente itens ativos; o painel administra.
+    match /banners/{id} {
+      allow get: if resource.data.ativo == true || ehAdmin();
+      allow list: if resource.data.ativo == true || ehAdmin();
+      allow create, update, delete: if ehAdmin();
+    }
+    match /configuracoes/banners {
+      allow get: if true;
+      allow create, update, delete: if ehAdmin();
+    }
+
     // A leitura do próprio perfil é essencial para saber se a conta é admin.
     match /usuarios/{uid} {
       allow get: if autenticado() && (request.auth.uid == uid || ehAdmin());

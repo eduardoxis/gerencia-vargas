@@ -7,22 +7,23 @@
      Os nomes das variáveis (azul-*, cinza-*) foram mantidos para não mexer em
      nenhum seletor/JS; apenas os VALORES mudaram: azul-* = bordô/vinho,
      cinza-* = marrom/nude. */
-  --azul-900: #4a0a0f;   /* vinho profundo */
-  --azul-700: #6b0e12;   /* bordô da logo */
-  --azul-500: #8a2a2f;
-  --azul-100: #f4e8df;   /* nude claro */
-  --branco: #ffffff;
-  --cinza-050: #ffffff;
-  --cinza-100: #efe4da;
-  --cinza-200: #e6d8cc;
-  --cinza-300: #dccbbd;
-  --cinza-400: #b9a699;
-  --cinza-500: #8f7b6e;
-  --cinza-600: #6f5d53;
-  --cinza-700: #5b4a41;
-  --cinza-900: #2b1d18;
-  --marrom: #7a4a2e;
-  --nude: #e9d3c3;
+  --azul-900: #705443;
+  --azul-700: #705443;
+  --azul-600: #8c6954;
+  --azul-500: #a98168;
+  --azul-100: #efe3d4;
+  --branco: #faf7f2;
+  --cinza-050: #faf7f2;
+  --cinza-100: #efe3d4;
+  --cinza-200: #e4d2bf;
+  --cinza-300: #d8c1a9;
+  --cinza-400: #b99880;
+  --cinza-500: #947360;
+  --cinza-600: #705443;
+  --cinza-700: #705443;
+  --cinza-900: #382920;
+  --marrom: #705443;
+  --nude: #a98168;
 
   --raio-sm: 10px;
   --raio-md: 16px;
