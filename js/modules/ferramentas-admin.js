@@ -1,6 +1,6 @@
 import {
   gerarBackupAdministrativo, listarLeadsPerdidosPagina, listarPedidosAdminPagina,
-  listarProdutosPagina, listarUltimoAlertaEstoque
+  listarProdutosPagina, listarUltimoAlertaEstoque, listarCategorias, invalidarCache
 } from "../services/firestore.js";
 import { escHtml, formatBRL, toast } from "../utils/utils.js";
 import { icon } from "../utils/icons.js";
@@ -51,65 +51,56 @@ async function listarTodosProdutosParaCatalogo(apenasPublicos) {
   return produtos;
 }
 
-function htmlCatalogoParaImpressao(produtos) {
-  const itens = produtos.map(produto => {
-    const imagem = String(produto.imagem || produto.imagens?.[0] || "").trim();
-    const imagemHtml = imagem
-      ? `<img src="${escHtml(imagem)}" alt="${escHtml(produto.nome || "Produto")}">`
-      : `<div class="sem-imagem">Sem imagem</div>`;
-    return `<article class="produto">
-      <div class="foto">${imagemHtml}</div>
-      <h2>${escHtml(produto.nome || "Produto sem nome")}</h2>
-      ${produto.marca ? `<p class="marca">${escHtml(produto.marca)}</p>` : ""}
-      <strong>${escHtml(formatBRL(produto.preco))}</strong>
-    </article>`;
-  }).join("");
-
-  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Catálogo - Espaço Viviane Vargas</title>
-  <style>
-    @page { size: A4; margin: 12mm; }
-    * { box-sizing:border-box; } body { font-family:Arial,sans-serif; color:#2d1c18; margin:0; }
-    header { border-bottom:2px solid #7d1117; margin-bottom:18px; padding-bottom:10px; }
-    h1 { margin:0; color:#7d1117; font-size:24px; } header p { margin:5px 0 0; color:#755d55; font-size:12px; }
-    .grade { display:grid; grid-template-columns:repeat(3,1fr); gap:13px; }
-    .produto { break-inside:avoid; border:1px solid #e8ded9; border-radius:8px; overflow:hidden; padding:9px; }
-    .foto { height:155px; display:grid; place-items:center; background:#faf7f5; } .foto img { max-width:100%; max-height:100%; object-fit:contain; }
-    .sem-imagem { color:#927d74; font-size:12px; } h2 { font-size:12px; line-height:1.35; margin:9px 0 4px; } .marca { color:#806b62; font-size:10px; margin:0 0 6px; } strong { color:#7d1117; font-size:13px; }
-    footer { margin-top:18px; color:#806b62; font-size:10px; text-align:center; }
-  </style></head><body><header><h1>Espaço Viviane Vargas</h1><p>Catálogo de produtos · gerado em ${new Date().toLocaleDateString("pt-BR")}</p></header><main class="grade">${itens || "<p>Nenhum produto encontrado.</p>"}</main><footer>Preços sujeitos a alteração. Consulte a loja para confirmar disponibilidade.</footer></body></html>`;
-}
-
 export function carregarAbaCatalogoPdf(container) {
   if (!container) return;
-  container.innerHTML = `<div class="admin-panel-head"><h1>Catálogo em PDF</h1><p>Gere uma versão pronta para imprimir ou salvar como PDF pelo navegador.</p></div>
+  container.innerHTML = `<div class="admin-panel-head"><h1>Catálogo em PDF</h1><p>Gere o catálogo oficial com capa e páginas de produtos em A4.</p></div>
     <section class="ferramenta-card">
       <span class="ferramenta-card__icone ferramenta-card__icone--vinho">${icon("printer")}</span>
-      <div><h2>Gerar catálogo</h2><p>O catálogo inclui foto, nome, marca e preço de cada produto. Uma nova janela será aberta para você escolher <strong>Salvar como PDF</strong>.</p>
+      <div><h2>Gerar catálogo</h2><p>Inclui a capa oficial, fotos inteiras, nomes, descrições e preços atuais, organizados por categoria. O PDF será aberto em uma nova janela para baixar ou imprimir.</p>
       <label class="ferramenta-select">Produtos incluídos<select id="catalogo-pdf-tipo"><option value="publicos">Somente produtos visíveis no site</option><option value="todos">Todos os produtos, incluindo ocultos</option></select></label></div>
       <button type="button" class="btn-primary ferramenta-card__acao" id="btn-gerar-catalogo-pdf">${icon("printer")}Gerar catálogo</button>
     </section>`;
 
   container.querySelector("#btn-gerar-catalogo-pdf")?.addEventListener("click", async (evento) => {
     const botao = evento.currentTarget;
+    if (botao.disabled) return;
     const apenasPublicos = container.querySelector("#catalogo-pdf-tipo")?.value !== "todos";
     const janela = window.open("", "_blank");
     if (!janela) { toast("Permita pop-ups para gerar o catálogo.", "error"); return; }
-    janela.document.write("<p style='font-family:Arial;padding:24px'>Preparando catálogo...</p>");
+    janela.opener = null;
+    janela.document.write("<!doctype html><html lang='pt-BR'><head><meta charset='utf-8'><title>Preparando catálogo</title></head><body style='font-family:Arial;padding:24px;background:#fffaf3;color:#705443'><p role='status'>Buscando os produtos atuais...</p></body></html>");
+    janela.document.close();
     botao.disabled = true;
+    botao.textContent = "Preparando catálogo...";
+    const informar = mensagem => {
+      if (janela.closed) throw new Error("A janela do catálogo foi fechada. Gere novamente quando desejar.");
+      const status = janela.document.querySelector('[role="status"]');
+      if (status) status.textContent = mensagem;
+    };
     try {
-      const produtos = await listarTodosProdutosParaCatalogo(apenasPublicos);
-      janela.document.open();
-      janela.document.write(htmlCatalogoParaImpressao(produtos));
-      janela.document.close();
-      janela.focus();
-      janela.onload = () => janela.print();
-      toast(`Catálogo preparado com ${produtos.length} produto(s).`);
+      invalidarCache("listarCategorias");
+      const [produtos, categorias, { gerarCatalogoPDF }] = await Promise.all([
+        listarTodosProdutosParaCatalogo(apenasPublicos), listarCategorias(),
+        import("./catalogo-pdf.js?v=20261023-oficial")
+      ]);
+      informar("Preparando a capa e as fotos dos produtos...");
+      const resultado = await gerarCatalogoPDF(produtos, categorias, {
+        progresso: (atual, total) => informar(`Carregando fotos: ${atual} de ${total}...`)
+      });
+      informar("Abrindo o PDF...");
+      const url = URL.createObjectURL(new Blob([resultado.bytes], { type: "application/pdf" }));
+      try { janela.location.replace(url); }
+      catch (erro) { URL.revokeObjectURL(url); throw erro; }
+      // A janela precisa continuar acessando o arquivo enquanto o visualizador abre.
+      window.setTimeout(() => URL.revokeObjectURL(url), 5 * 60 * 1000);
+      toast(`Catálogo aberto com ${resultado.totalProdutos} produto(s) e ${resultado.totalPaginas} página(s). Use baixar ou imprimir no PDF.`);
     } catch (erro) {
-      janela.close();
+      if (!janela.closed) janela.close();
       console.error("Falha ao gerar catálogo em PDF:", erro);
-      toast("Não foi possível gerar o catálogo.", "error");
+      toast(erro.message || "Não foi possível gerar o catálogo. Tente novamente.", "error");
     } finally {
       botao.disabled = false;
+      botao.innerHTML = `${icon("printer")}Gerar catálogo`;
     }
   });
 }
