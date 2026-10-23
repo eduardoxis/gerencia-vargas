@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, rgb } from '../vendor/pdf-lib.esm.min.js';
+import { PDFDocument, StandardFonts, rgb, BlendMode } from '../vendor/pdf-lib.esm.min.js';
 
 const A4 = [595.2756, 841.8898];
 const COR = {
@@ -62,7 +62,7 @@ function escreverLinhas(pagina, linhas, x, topo, fonte, tamanho, cor, entrelinha
 function cardArredondado(pagina, x, topo, largura, altura) {
   const r = 7, w = largura, h = altura;
   const caminho = `M ${r} 0 H ${w-r} Q ${w} 0 ${w} ${r} V ${h-r} Q ${w} ${h} ${w-r} ${h} H ${r} Q 0 ${h} 0 ${h-r} V ${r} Q 0 0 ${r} 0 Z`;
-  pagina.drawSvgPath(caminho, { x, y: A4[1] - topo, color: COR.branco, borderColor: COR.borda, borderWidth: .55 });
+  pagina.drawSvgPath(caminho, { x, y: A4[1] - topo, color: COR.fundo, borderColor: COR.borda, borderWidth: .55 });
 }
 
 function decoracao(pagina) {
@@ -78,7 +78,61 @@ function decoracao(pagina) {
   }
 }
 
-async function obterImagem(url, limite = 25000) {
+// Uniformiza apenas o fundo quase branco conectado à borda. Rótulos claros
+// isolados dentro do produto e pixels transparentes não são apagados.
+export function uniformizarFundoClaro({ data, width, height }) {
+  const visitados = new Uint8Array(width*height);
+  const fila = new Uint32Array(width*height);
+  let inicio=0, fim=0;
+  const adicionar = pixel => {
+    if(visitados[pixel])return;
+    visitados[pixel]=1;
+    const i=pixel*4;
+    if(data[i+3]<12 || Math.min(data[i],data[i+1],data[i+2])>=248)fila[fim++]=pixel;
+  };
+  for(let x=0;x<width;x++){adicionar(x);adicionar((height-1)*width+x);}
+  for(let y=0;y<height;y++){adicionar(y*width);adicionar(y*width+width-1);}
+  while(inicio<fim) {
+    const pixel=fila[inicio++],i=pixel*4,x=pixel%width;
+    if(data[i+3]>=12)data[i]=data[i+1]=data[i+2]=255;
+    if(x>0)adicionar(pixel-1);
+    if(x<width-1)adicionar(pixel+1);
+    if(pixel>=width)adicionar(pixel-width);
+    if(pixel<width*(height-1))adicionar(pixel+width);
+  }
+}
+
+// Recorta somente margens claras externas. O produto e sua sombra continuam
+// completos; fotos com cenário/coloridas conservam o enquadramento cadastrado.
+export function delimitarFoto({ data, width, height }) {
+  const claro = indice => data[indice+3] < 12 || Math.min(data[indice],data[indice+1],data[indice+2]) >= 248;
+  const passo = Math.max(1,Math.floor(Math.min(width,height)/80));
+  let borda = 0, claros = 0;
+  for(let x=0;x<width;x+=passo) {
+    for(const y of [0,height-1]) { borda++; if(claro((y*width+x)*4))claros++; }
+  }
+  for(let y=0;y<height;y+=passo) {
+    for(const x of [0,width-1]) { borda++; if(claro((y*width+x)*4))claros++; }
+  }
+  const inteira = { x:0,y:0,width,height };
+  if(!borda || claros/borda < .97)return inteira;
+  let esquerda=width, direita=-1, cima=height, baixo=-1;
+  for(let y=0;y<height;y++) {
+    for(let x=0;x<width;x++) {
+      if(!claro((y*width+x)*4)) {
+        esquerda=Math.min(esquerda,x); direita=Math.max(direita,x);
+        cima=Math.min(cima,y); baixo=Math.max(baixo,y);
+      }
+    }
+  }
+  if(direita<esquerda || baixo<cima)return inteira;
+  const folga=Math.max(8,Math.ceil(Math.max(width,height)*.025));
+  esquerda=Math.max(0,esquerda-folga); cima=Math.max(0,cima-folga);
+  direita=Math.min(width-1,direita+folga); baixo=Math.min(height-1,baixo+folga);
+  return { x:esquerda,y:cima,width:direita-esquerda+1,height:baixo-cima+1 };
+}
+
+async function obterImagem(url, limite = 25000, { produto = false } = {}) {
   const endereco = new URL(url, globalThis.location?.href || 'https://localhost/');
   if (!['https:', 'http:', 'data:', 'blob:'].includes(endereco.protocol)) throw Error('Formato de endereço de imagem não permitido.');
   const controlador = new AbortController();
@@ -87,19 +141,32 @@ async function obterImagem(url, limite = 25000) {
     const resposta = await fetch(endereco.href, { signal: controlador.signal, cache: 'no-cache' });
     if (!resposta.ok) throw Error('Não foi possível carregar uma imagem (HTTP ' + resposta.status + ').');
     const blob = await resposta.blob();
-    if (/image\/(png|jpeg)/i.test(blob.type)) return { bytes: new Uint8Array(await blob.arrayBuffer()), tipo: /png/i.test(blob.type) ? 'png' : 'jpg' };
-    // Fotos WebP/AVIF e SVG do cadastro são convertidas sem alterar a proporção.
+    // A capa PNG é incorporada sem processamento e permanece idêntica ao original.
+    if (!produto && /image\/(png|jpeg)/i.test(blob.type)) return { bytes: new Uint8Array(await blob.arrayBuffer()), tipo: /png/i.test(blob.type) ? 'png' : 'jpg' };
     const bitmap = await createImageBitmap(blob);
     try {
-      const escala = Math.min(1, 1400 / Math.max(bitmap.width, bitmap.height));
+      // Preserva a resolução nativa das fotos comuns; limita apenas arquivos muito
+      // grandes para evitar esgotar a memória do celular durante a exportação.
+      const escala = Math.min(1, 2600 / Math.max(bitmap.width, bitmap.height));
       const canvas = document.createElement('canvas');
       canvas.width = Math.max(1, Math.round(bitmap.width*escala)); canvas.height = Math.max(1, Math.round(bitmap.height*escala));
       const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
       ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
-      const convertido = await new Promise(resolve => canvas.toBlob(resolve,'image/jpeg',.94));
-      if (!convertido) throw Error('Não foi possível converter uma foto.');
-      return { bytes: new Uint8Array(await convertido.arrayBuffer()), tipo:'jpg' };
+      let final = canvas;
+      if(produto) {
+        const pixels = ctx.getImageData(0,0,canvas.width,canvas.height);
+        uniformizarFundoClaro(pixels); ctx.putImageData(pixels,0,0);
+        const area = delimitarFoto(pixels);
+        if(area.width!==canvas.width || area.height!==canvas.height) {
+          final = document.createElement('canvas'); final.width=area.width; final.height=area.height;
+          final.getContext('2d').drawImage(canvas,area.x,area.y,area.width,area.height,0,0,area.width,area.height);
+        }
+      }
+      // PNG evita uma nova compressão JPEG e conserva os detalhes da embalagem.
+      const convertido = await new Promise(resolve => final.toBlob(resolve,'image/png'));
+      if (!convertido) throw Error('Não foi possível preparar uma foto.');
+      return { bytes: new Uint8Array(await convertido.arrayBuffer()), tipo:'png' };
     } finally { bitmap.close(); }
   } finally { clearTimeout(timer); }
 }
@@ -145,7 +212,7 @@ export async function gerarCatalogoPDF(produtos, categorias = [], { progresso = 
     while(proxima < urls.length) {
       const url = urls[proxima++];
       let foto;
-      try { foto = await obterImagem(url); }
+      try { foto = await obterImagem(url,25000,{produto:true}); }
       catch { throw Error('Uma foto cadastrada não carregou. Confira as imagens e tente gerar o catálogo novamente.'); }
       imagens.set(url, await (foto.tipo==='png' ? doc.embedPng(foto.bytes) : doc.embedJpg(foto.bytes)));
       progresso(++prontas,urls.length);
@@ -173,12 +240,12 @@ export async function gerarCatalogoPDF(produtos, categorias = [], { progresso = 
       const inicioLinha = Math.floor(i/3)*3;
       const maiorTexto = Math.max(...medidas.slice(inicioLinha,inicioLinha+3).map(m=>m.alturaTexto));
       // Todos os cards da mesma linha têm a área da foto e o nome alinhados.
-      const alturaFoto = Math.min(208,altura-64-maiorTexto);
+      const alturaFoto = Math.min(238,altura-64-maiorTexto);
       const foto = imagens.get(imagemPrincipal(produto));
       if(foto) {
         const escala = Math.min((largura-24)/foto.width,(alturaFoto-12)/foto.height);
         const w=foto.width*escala,h=foto.height*escala;
-        pagina.drawImage(foto,{x:x+(largura-w)/2,y:A4[1]-(y+10+(alturaFoto-h)/2)-h,width:w,height:h});
+        pagina.drawImage(foto,{x:x+(largura-w)/2,y:A4[1]-(y+10+(alturaFoto-h)/2)-h,width:w,height:h,blendMode:BlendMode.Multiply});
       } else escreverLinhas(pagina,['Sem imagem cadastrada'],x+12,y+alturaFoto/2,sans,8,COR.discreto);
       const nomeTopo=y+alturaFoto+16;
       escreverLinhas(pagina,linhasNome,x+12,nomeTopo,serif,tamanhoNome,COR.texto,1.14);

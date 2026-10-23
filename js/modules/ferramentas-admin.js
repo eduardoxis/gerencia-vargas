@@ -81,7 +81,7 @@ export function carregarAbaCatalogoPdf(container) {
       invalidarCache("listarCategorias");
       const [produtos, categorias, { gerarCatalogoPDF }] = await Promise.all([
         listarTodosProdutosParaCatalogo(apenasPublicos), listarCategorias(),
-        import("./catalogo-pdf.js?v=20261023-sem-descricao")
+        import("./catalogo-pdf.js?v=20261023-fotos-integradas")
       ]);
       informar("Preparando a capa e as fotos dos produtos...");
       const resultado = await gerarCatalogoPDF(produtos, categorias, {
