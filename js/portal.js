@@ -3,15 +3,9 @@ import { trocarAba } from "./utils/modal.js";
 import { ICONS } from "./utils/icons.js";
 import { iniciarBuscaGlobal } from "./modules/analises-admin.js";
 
-if (!document.querySelector('link[href="/css/banners-admin.css"]')) {
-  const estilo = document.createElement("link");
-  estilo.rel = "stylesheet"; estilo.href = "/css/banners-admin.css";
-  document.head.appendChild(estilo);
-}
-
 const app = document.querySelector("#portal-app");
 let iniciado = false;
-const ABAS_DO_PAINEL = ["dashboard", "analises", "produtos", "servicos", "categorias", "marcas", "etiquetas", "estoque", "pedidos", "historico", "usuarios", "clientes", "leads", "notificacoes", "catalogo-pdf", "backup", "banners"];
+const ABAS_DO_PAINEL = ["dashboard", "analises", "produtos", "servicos", "categorias", "marcas", "etiquetas", "estoque", "pedidos", "historico", "usuarios", "clientes", "leads", "notificacoes", "catalogo-pdf", "backup"];
 
 // Algumas versões antigas do HTML do painel não traziam todos os containers
 // das abas. No desktop isso deixava a navegação visível, mas sem área para
@@ -39,12 +33,6 @@ function adicionarFerramentasDoPortal() {
     botao.dataset.tabTrigger = "analises";
     botao.innerHTML = `<span class="nav-icon" data-icon="trendingUp"></span><span class="nav-label">Análises</span>`;
     lista.insertBefore(botao, lista.querySelector('[data-tab-trigger="produtos"]'));
-  }
-  if (lista && !lista.querySelector('[data-tab-trigger="banners"]')) {
-    const botao = document.createElement("button");
-    botao.dataset.tabTrigger = "banners";
-    botao.innerHTML = `<span class="nav-icon" data-icon="image"></span><span class="nav-label">Gerenciar Banners</span>`;
-    lista.appendChild(botao);
   }
   const topbar = app?.querySelector(".portal-topbar");
   if (topbar && !topbar.querySelector("#form-busca-global")) {

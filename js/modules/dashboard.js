@@ -18,7 +18,6 @@ import { carregarAbaAnalises } from "./analises-admin.js";
 import { ICONS, icon } from "../utils/icons.js";
 import { auth } from "../../firebase/firebase-config.js";
 import { carregarAbaServicos } from "./servicos-admin.js";
-import { carregarAbaBanners } from "./banners-admin.js";
 
 let cacheProdutos = [];
 let cacheCategorias = [];
@@ -174,7 +173,6 @@ function definirCarregadoresAba(root) {
     notificacoes: () => carregarAbaNotificacoes(painelDoRoot(root, "notificacoes"), root),
     "catalogo-pdf": () => carregarAbaCatalogoPdf(painelDoRoot(root, "catalogo-pdf")),
     backup: () => carregarAbaBackup(painelDoRoot(root, "backup"))
-    ,banners: () => carregarAbaBanners(painelDoRoot(root, "banners"))
   };
 }
 
