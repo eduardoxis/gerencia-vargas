@@ -56,7 +56,7 @@ export function carregarAbaCatalogoPdf(container) {
   container.innerHTML = `<div class="admin-panel-head"><h1>Catálogo em PDF</h1><p>Gere o catálogo oficial com capa e páginas de produtos em A4.</p></div>
     <section class="ferramenta-card">
       <span class="ferramenta-card__icone ferramenta-card__icone--vinho">${icon("printer")}</span>
-      <div><h2>Gerar catálogo</h2><p>Inclui a capa oficial, fotos inteiras, nomes, descrições e preços atuais, organizados por categoria. O PDF será aberto em uma nova janela para baixar ou imprimir.</p>
+      <div><h2>Gerar catálogo</h2><p>Inclui a capa oficial, fotos inteiras, nomes e preços atuais, organizados por categoria. O PDF será aberto em uma nova janela para baixar ou imprimir.</p>
       <label class="ferramenta-select">Produtos incluídos<select id="catalogo-pdf-tipo"><option value="publicos">Somente produtos visíveis no site</option><option value="todos">Todos os produtos, incluindo ocultos</option></select></label></div>
       <button type="button" class="btn-primary ferramenta-card__acao" id="btn-gerar-catalogo-pdf">${icon("printer")}Gerar catálogo</button>
     </section>`;
@@ -81,7 +81,7 @@ export function carregarAbaCatalogoPdf(container) {
       invalidarCache("listarCategorias");
       const [produtos, categorias, { gerarCatalogoPDF }] = await Promise.all([
         listarTodosProdutosParaCatalogo(apenasPublicos), listarCategorias(),
-        import("./catalogo-pdf.js?v=20261023-oficial")
+        import("./catalogo-pdf.js?v=20261023-sem-descricao")
       ]);
       informar("Preparando a capa e as fotos dos produtos...");
       const resultado = await gerarCatalogoPDF(produtos, categorias, {

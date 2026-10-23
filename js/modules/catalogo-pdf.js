@@ -110,21 +110,19 @@ function imagemPrincipal(produto) {
   return candidata?.trim() || '';
 }
 
-function medirCard(produto, serif, sans, largura) {
+function medirCard(produto, serif, largura) {
   const nome = produto.nome || 'Produto sem nome';
-  const descricao = String(produto.descricao || '').trim();
-  let tamanhoNome=12, tamanhoDescricao=10.2, linhasNome, linhasDescricao, alturaTexto;
-  do {
-    linhasNome=quebrarTexto(nome,serif,tamanhoNome,largura);
-    linhasDescricao=quebrarTexto(descricao,sans,tamanhoDescricao,largura);
-    alturaTexto=linhasNome.length*tamanhoNome*1.14+(linhasDescricao.length ? 7+linhasDescricao.length*tamanhoDescricao*1.2:0);
-    if(alturaTexto<=133) break;
-    tamanhoNome-=.5; tamanhoDescricao-=.35;
-  } while(tamanhoNome>=8.5 && tamanhoDescricao>=7.5);
-  if(alturaTexto>174)throw Error('O texto de "'+nome+'" é muito longo para um card legível. Reduza a descrição no cadastro.');
-  return { tamanhoNome, tamanhoDescricao, linhasNome, linhasDescricao, alturaTexto };
+  let tamanhoNome = 12;
+  let linhasNome = quebrarTexto(nome, serif, tamanhoNome, largura);
+  let alturaTexto = linhasNome.length * tamanhoNome * 1.14;
+  while (alturaTexto > 133 && tamanhoNome > 8.5) {
+    tamanhoNome -= .5;
+    linhasNome = quebrarTexto(nome, serif, tamanhoNome, largura);
+    alturaTexto = linhasNome.length * tamanhoNome * 1.14;
+  }
+  if (alturaTexto > 174) throw Error('O nome de "' + nome + '" é muito longo para um card legível. Reduza o nome no cadastro.');
+  return { tamanhoNome, linhasNome, alturaTexto };
 }
-
 export async function gerarCatalogoPDF(produtos, categorias = [], { progresso = () => {} } = {}) {
   const doc = await PDFDocument.create();
   doc.setTitle('Catálogo de Produtos - Espaço Viviane Vargas'); doc.setAuthor('Espaço Viviane Vargas');
@@ -166,12 +164,12 @@ export async function gerarCatalogoPDF(produtos, categorias = [], { progresso = 
     escreverLinhas(pagina,titulo,margem,23,serif,tamanhoTitulo,COR.texto,1.05);
     escreverLinhas(pagina,['CATÁLOGO DE PRODUTOS'],margem,91,sans,8,COR.vinho);
     pagina.drawLine({start:{x:margem,y:A4[1]-108},end:{x:margem+42,y:A4[1]-108},thickness:1,color:COR.vinho});
-    const medidas = grupo.produtos.map(produto => medirCard(produto,serif,sans,largura-24));
+    const medidas = grupo.produtos.map(produto => medirCard(produto,serif,largura-24));
     for (let i=0;i<grupo.produtos.length;i++) {
       const produto = grupo.produtos[i], x = margem+(i%3)*(largura+gap), y = topo+Math.floor(i/3)*(altura+gap);
       cardArredondado(pagina,x,y,largura,altura);
       const interna = largura-24;
-      const { tamanhoNome, tamanhoDescricao, linhasNome, linhasDescricao } = medidas[i];
+      const { tamanhoNome, linhasNome } = medidas[i];
       const inicioLinha = Math.floor(i/3)*3;
       const maiorTexto = Math.max(...medidas.slice(inicioLinha,inicioLinha+3).map(m=>m.alturaTexto));
       // Todos os cards da mesma linha têm a área da foto e o nome alinhados.
@@ -184,7 +182,6 @@ export async function gerarCatalogoPDF(produtos, categorias = [], { progresso = 
       } else escreverLinhas(pagina,['Sem imagem cadastrada'],x+12,y+alturaFoto/2,sans,8,COR.discreto);
       const nomeTopo=y+alturaFoto+16;
       escreverLinhas(pagina,linhasNome,x+12,nomeTopo,serif,tamanhoNome,COR.texto,1.14);
-      escreverLinhas(pagina,linhasDescricao,x+12,nomeTopo+linhasNome.length*tamanhoNome*1.14+7,sans,tamanhoDescricao,COR.discreto);
       const valor = produto.preco;
       const preco = valor!==null && valor!=='' && Number.isFinite(Number(valor)) && Number(valor)>=0 ? moeda.format(Number(valor)) : 'Consulte a loja';
       let tamanhoPreco = 20;
