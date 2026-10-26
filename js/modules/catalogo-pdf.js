@@ -197,7 +197,7 @@ export async function gerarCatalogoPDF(produtos, categorias = [], { progresso = 
   const serif = await doc.embedFont(StandardFonts.TimesRomanBold);
   const sans = await doc.embedFont(StandardFonts.Helvetica);
   const paginas = paginarCatalogo(produtos,categorias);
-  const capa = await obterImagem(new URL('../../assets/catalogo/capa-oficial.png',import.meta.url).href);
+  const capa = await obterImagem(new URL('../../assets/catalogo/capa-oficial.png?v=20261026',import.meta.url).href);
   const arte = await doc.embedPng(capa.bytes);
   const primeira = doc.addPage(A4);
   // Contain: a imagem original inteira, sem corte ou distorção, em A4.
