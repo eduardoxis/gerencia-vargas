@@ -190,6 +190,56 @@ function medirCard(produto, serif, largura) {
   if (alturaTexto > 174) throw Error('O nome de "' + nome + '" é muito longo para um card legível. Reduza o nome no cadastro.');
   return { tamanhoNome, linhasNome, alturaTexto };
 }
+function escreverEspacado(pagina, texto, x, topo, fonte, tamanho, espaco, cor) {
+  for (const letra of texto) {
+    pagina.drawText(letra,{x,y:A4[1]-topo-tamanho,font:fonte,size:tamanho,color:cor});
+    x += fonte.widthOfTextAtSize(letra,tamanho)+espaco;
+  }
+}
+
+async function escreverCapa(doc, pagina, arte, sans) {
+  const titulo = await doc.embedFont(StandardFonts.TimesRoman);
+  const italico = await doc.embedFont(StandardFonts.TimesRomanItalic);
+  const vinho = rgb(.53,.015,.075), escuro=rgb(.14,.025,.025), cinza=rgb(.40,.41,.40);
+  const escala=Math.min(A4[0]/arte.width,A4[1]/arte.height);
+  const margemArte=(A4[0]-arte.width*escala)/2;
+  const x=margemArte+22;
+  const marca=await obterImagem(new URL('../../assets/images/logo.webp',import.meta.url).href);
+  const logo=await doc.embedPng(marca.bytes);
+  pagina.drawImage(logo,{x,y:A4[1]-96,width:52,height:52});
+  escreverEspacado(pagina,'ESPAÇO',x+64,43,sans,10.4,2.3,vinho);
+  escreverEspacado(pagina,'VIVIANE VARGAS',x+64,60,sans,18.2,.7,vinho);
+  escreverEspacado(pagina,'ESTÉTICA E SALÃO DE BELEZA',x+65,84,sans,6.6,.8,vinho);
+
+  escreverLinhas(pagina,['Catálogo'],x-2,146,titulo,57,escuro);
+  escreverLinhas(pagina,['de Produtos'],x-2,200,titulo,51,vinho);
+  pagina.drawLine({start:{x,y:A4[1]-270},end:{x:x+34,y:A4[1]-270},thickness:1.2,color:vinho});
+  escreverEspacado(pagina,'SELEÇÃO ESPECIAL',x,287,sans,9,1.7,vinho);
+  escreverEspacado(pagina,'DE BELEZA E AUTOCUIDADO',x,302,sans,8.3,1.05,vinho);
+  const descricao='Cabelo, unhas, maquiagem, estética e bem-estar em um só lugar, para você se sentir ainda mais única.';
+  escreverLinhas(pagina,quebrarTexto(descricao,sans,9.5,190),x,335,sans,9.5,cinza,1.32);
+
+  escreverLinhas(pagina,['Beleza é cuidado','em cada detalhe.'],x,723,italico,15,vinho,1.12);
+  pagina.drawLine({start:{x,y:A4[1]-771},end:{x:x+31,y:A4[1]-771},thickness:1.1,color:vinho});
+  // Curva suave dá contraste ao texto no canto inferior, mantendo o rosto livre.
+  pagina.drawEllipse({x:A4[0]-8,y:64,xScale:143,yScale:118,color:COR.fundo,opacity:.97,borderColor:COR.borda,borderWidth:.6});
+  const etiquetas=['SAÚDE','BELEZA','BEM-ESTAR','AUTOESTIMA'];
+  etiquetas.forEach((texto,i)=>escreverEspacado(pagina,texto,A4[0]-120,720+i*18,sans,8.3,1.5,vinho));
+  pagina.drawLine({start:{x:A4[0]-120,y:A4[1]-795},end:{x:A4[0]-88,y:A4[1]-795},thickness:1.1,color:vinho});
+
+  pagina.drawRectangle({x:margemArte,y:0,width:arte.width*escala,height:35,color:COR.fundo,opacity:.97});
+  const rodape=22;
+  pagina.drawRectangle({x,y:rodape-8,width:8,height:8,borderWidth:.8,borderColor:vinho});
+  pagina.drawCircle({x:x+4,y:rodape-4,size:2,borderWidth:.7,borderColor:vinho});
+  pagina.drawCircle({x:x+6,y:rodape-2,size:.5,color:vinho});
+  escreverLinhas(pagina,['vivianefvargas'],x+13,816,sans,7.1,vinho);
+  pagina.drawLine({start:{x:x+89,y:rodape-9},end:{x:x+89,y:rodape+1},thickness:.65,color:vinho});
+  pagina.drawCircle({x:x+104,y:rodape-4,size:4,borderWidth:.7,borderColor:vinho});
+  pagina.drawEllipse({x:x+104,y:rodape-4,xScale:1.7,yScale:4,borderWidth:.6,borderColor:vinho});
+  pagina.drawLine({start:{x:x+100,y:rodape-4},end:{x:x+108,y:rodape-4},thickness:.6,color:vinho});
+  escreverLinhas(pagina,['espaco-viviane-vargas.vercel.app'],x+114,816,sans,7.1,vinho);
+}
+
 export async function gerarCatalogoPDF(produtos, categorias = [], { progresso = () => {} } = {}) {
   const doc = await PDFDocument.create();
   doc.setTitle('Catálogo de Produtos - Espaço Viviane Vargas'); doc.setAuthor('Espaço Viviane Vargas');
@@ -204,6 +254,7 @@ export async function gerarCatalogoPDF(produtos, categorias = [], { progresso = 
   primeira.drawRectangle({x:0,y:0,width:A4[0],height:A4[1],color:COR.fundo});
   const escalaCapa = Math.min(A4[0]/arte.width,A4[1]/arte.height);
   primeira.drawImage(arte,{x:(A4[0]-arte.width*escalaCapa)/2,y:(A4[1]-arte.height*escalaCapa)/2,width:arte.width*escalaCapa,height:arte.height*escalaCapa});
+  await escreverCapa(doc,primeira,arte,sans);
   const imagens = new Map();
   const urls = [...new Set(produtos.map(imagemPrincipal).filter(Boolean))];
   let proxima = 0, prontas = 0;
